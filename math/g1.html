@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Math Exercise 1</title>
+    <title>Math for Grade 1</title>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
     <meta name="format-detection" content="telephone=no">
@@ -10,7 +10,6 @@
         body {
             font-family: 'Times New Roman', Times, serif;
             font-size: 48px;
-            line-height: 81px;
             color: #777;
             user-select: none;
         }
@@ -18,6 +17,7 @@
             position: relative;
             width: 81px;
             height: 81px;
+            line-height: 81px;
             text-align: center;
             display: block;
             border: 1px solid #ccc;
@@ -42,13 +42,16 @@
     <span id="minute" style="background-color: #ffe;"></span>
     <span id="second" style="background-color: #ffe;"></span>
 </div>
-<div id="inputs" style="position: absolute; bottom: 0; left: 0; right: 0; display: block;">
-    <span id="go" style="cursor: pointer; background-color: #eee;" onclick="go();">Go</span>
+<div id="go" style="position: absolute; bottom: 0; left: 0; right: 0; display: block;">
+    <span style="cursor: pointer; background-color: #eee;" onclick="go();">Go</span>
+</div>
+<div id="inputs" style="position: absolute; bottom: 0; left: 0; right: 0; display: none;">
 </div>
 </center>
 
 <script>
 var max = 10;
+var min = 1;
 
 var op1 = -1;
 var op = 0;
@@ -58,9 +61,11 @@ var ans = -1;
 var correct = 0;
 var wrong = 0;
 
-var maxMinute = 3;
+var maxMinute = 1;
 var minutes = 0;
 var seconds = 0;
+
+//----------------------------------------------------------------------------
 
 function generate() {
     Math.random() > 0.5 ? generateAdd() : generateSub();
@@ -77,13 +82,10 @@ function generateAdd() {
     op = 0;
 
     // Generate an integer.
-    op1 = Math.floor(Math.random() * (max - 2)) + 1;
-    if (op1 === max) {
-        op1 = max - 1;
-    }
+    op1 = Math.floor(Math.random() * (max - min)) + min;
 
     // Generate another integer.
-    op2 = Math.floor(Math.random() * (max - op1)) + 1;
+    op2 = Math.floor(Math.random() * (max - op1 + 1));
 
     // Compute the answer.
     ans = op1 + op2;
@@ -105,6 +107,8 @@ function generateSub() {
     ans = op1 - op2;
 };
 
+//----------------------------------------------------------------------------
+
 function renderTimer() {
     seconds ++;
     if (seconds >= 60) {
@@ -117,14 +121,36 @@ function renderTimer() {
 
     if (minutes < maxMinute) {
         setTimeout(renderTimer, 1e3);
+    } else {
+        document.getElementById("go").style.display = "block";
+        document.getElementById("inputs").style.display = "none";
     }
 };
 
-function renderInputs() {
+//----------------------------------------------------------------------------
+
+function go() {
+    correct = 0;
+    wrong = 0;
+    minutes = 0;
+    seconds = 0;
+
+    document.getElementById("go").style.display = "none";
+    document.getElementById("inputs").style.display = "block";
+    document.getElementById("counters").style.display = "inline-flex";
+    document.getElementById("timer").style.display = "inline-flex";
+
+    generate();
+    renderTimer();
+};
+
+//----------------------------------------------------------------------------
+
+function initInputs() {
     var container = document.getElementById("inputs");
 
     var row = null;
-    for (var i = 2, j = 0; i <= max; i ++, j ++) {
+    for (var i = 0, j = 0; i <= max; i ++, j ++) {
         if (j % 3 === 0) {
             row = document.createElement("div");
             row.style.display = "inline-flex";
@@ -154,16 +180,7 @@ function renderInputs() {
         row.appendChild(el);
     }
 };
-
-function go() {
-    document.getElementById("go").style.display = "none";
-    document.getElementById("counters").style.display = "inline-flex";
-    document.getElementById("timer").style.display = "inline-flex";
-
-    generate();
-    renderInputs();
-    renderTimer();
-};
+initInputs();
 </script>
 </body>
 </html>
