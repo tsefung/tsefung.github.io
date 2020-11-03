@@ -27,44 +27,81 @@
     </style>
 </head>
 <body>
-<button onclick="start();">Start</button>
+<button onclick="Speech.readCurrentLine();">Start</button>
+<input type="file" onchange="loadFromFile();" />
 <script>
-var ready = false;
+var Speech = {
+    utterance: null,
+    init: function (lang) {
+        var that = this;
 
-var ssu = new SpeechSynthesisUtterance();
-ssu.lang = "zh-CN";
-ssu.onstart = function () {
-    ready = false;
+        this.utterance = new SpeechSynthesisUtterance();
+        this.utterance.lang = typeof lang === "string" ? lang : "zh-CN";
+        this.utterance.rate = 0.75;
+        
+        this.utterance.onstart = function() {
+            that.isSpeaking = true;
+        };
+        this.utterance.onend = function () {
+            that.isSpeaking = false;
+
+            that.currentLine ++;
+        };
+
+        this.utterance.onpause = function () {
+            //
+        };
+        this.utterance.onresume = function () {
+            that.isSpeaking = true;
+        };
+    },
+
+    isSpeaking: false,
+
+    lines: [],
+    currentLine: -1,
+    readCurrentLine: function () {
+        if (this.currentLine < 0 || this.currentLine >= this.lines.length) {
+            return;
+        }
+
+        this.utterance.text = this.lines[this.currentLine];
+        console.log(this.utterance.text);
+        speechSynthesis.speak(this.utterance);
+    },
+    speak: function (s) {
+        this.lines = [];
+
+        var a = s.split("。");
+        for (var i = 0; i < a.length; i ++) {
+            var t = a[i].trim();
+            if (t) {
+                this.lines.push(t);
+            }
+        }
+
+        if (this.lines.length === 0) {
+            return;
+        }
+
+        this.currentLine = 0;
+        this.readCurrentLine();
+    }
 };
 
-function speak(s) {
-    if (!ready) {
+Speech.init();
+
+function loadFromFile() {
+    var fi = document.querySelector("input");
+    if (fi.files.length === 0) {
         return;
     }
 
-    ssu.text = s;
-    speechSynthesis.speak(ssu);
-};
-
-function start() {    
-    ssu.text = "近几年手机的发展趋势是性能越来越强悍，流畅性也越来越好。唯一停滞不前的就是电池了，当前智能手机行业所采用的电池技术主要是锂离子电池，锂离子电池相比起之前的铅酸电池可谓是一个重大的技术进步。但锂离子电池技术虽然已经发展了这么多年，仍没有新的突破。因此手机厂商开始着重研究起了充电速度，于是快充便成了众多手机品牌力推的卖点。想想看，你再快的网速，再牛的技术，你的手机没电，也是相当于“武功尽失”。所以今天我就给大家带来了几款5G快充手机，彻底解决你的电量焦虑症！";
-
-    ssu.onstart = function (e) {
-        console.log("start", e);
+    var fr = new FileReader();
+    fr.onload = function () {
+        Speech.speak(fr.result);
     };
-    ssu.onpause = function (e) {
-        console.log("pause", e);
-    };
-    ssu.onresume = function (e) {
-        console.log("resume", e);
-    };
-    ssu.onend = function (e) {
-        console.log("end", e);
-    };
-
-    console.log("BEFORE");
-    speechSynthesis.speak(ssu);
-    console.log("END");
+    fr.readAsText(fi.files[0]);
 };
 </script>
 </body>
