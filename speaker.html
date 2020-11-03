@@ -16,20 +16,18 @@
 <body>
 <div id="subtitle" style="font-size: 36px; color: #777;">hello</div>
 <button onclick="Speech.prev();Speech.play();">&#x25c1;</button>
-<button onclick="start();">&#x25ba;</button>
+<button onclick="Speech.play();">&#x25ba;</button>
 <button onclick="Speech.next();Speech.play();">&#x25b7;</button>
 <script>
 var lines = [];
 var p = document.getElementById("subtitle");
 
-function start() {
+// function start() {
     Speech.load(
         "chinese/t1.txt",
         function (a) {
             lines = a;
             console.log(lines);
-
-            Speech.play();
         },
         function (pos) {
             p.innerText = lines[pos];
@@ -43,7 +41,7 @@ function start() {
             // Speech.play();
         }
     );
-};
+// };
 </script>
 </body>
 </html>
