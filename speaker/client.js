@@ -86,7 +86,7 @@ module.exports = function (container) {
             onload: function (e) {
                 canplay = true;
                 lines = e;
-                console.log(e);
+                // console.log(e);
 
                 titlePanel.innerText = title;
                 for (var i = 0; i < 5; i ++) {
