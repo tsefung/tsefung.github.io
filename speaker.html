@@ -8,6 +8,19 @@
     <meta name="format-detection" content="telephone=no">
     <script src="common/speech.js"></script>
     <style>
+        body {
+            user-select: none;
+        }
+        input {
+            color: #555;
+            /* border: 1px solid #ccc; */
+            /* border-radius: 5px; */
+            padding: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 12px;
+            
+        }
         button {
             font-size: 36px;
         }
@@ -18,6 +31,12 @@
 <button onclick="Speech.prev();Speech.play();">&#x25c1;</button>
 <button onclick="Speech.play();">&#x25ba;</button>
 <button onclick="Speech.next();Speech.play();">&#x25b7;</button>
+<input type="datetime-local" />
+<input type="date" />
+<input type="time" />
+<input type="image" />
+<input type="text" />
+<input type="button" value="&#x25ba;">
 <script>
 var lines = [];
 var p = document.getElementById("subtitle");
