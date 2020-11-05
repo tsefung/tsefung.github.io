@@ -1,6 +1,4 @@
 
-var ui = require("../ui/basic");
-
 var instance = null;
 
 var string2array = function (s) {

@@ -1,4 +1,5 @@
 var Speech = require("../media/speech");
+var pinyin = require("./pinyin");
 var ui = require("../ui/basic");
 
 module.exports = function (container) {
@@ -7,6 +8,46 @@ module.exports = function (container) {
 
     var canplay = false;
     var lines = [];
+
+    //----------------------------------------------------
+    // Initiate Pinyin map.
+
+    var pinyin_map = {};
+    var pinyin_array = pinyin.split(",");
+    for (var i = 0; i < pinyin_array.length; i ++) {
+        if (pinyin_array[i].length === 0) {
+            continue;
+        }
+        pinyin_map[pinyin_array[i][0]] = pinyin_array[i].substr(1);
+    }
+    // console.log(pinyin_map);
+
+    function getPinyin(s) {
+        var r = "";
+
+        var previousCharIsInvalid = false;
+        var first = true;
+        for (var i = 0; i < s.length; i ++) {
+            var c = s.charAt(i);
+            var py = pinyin_map[c];
+
+            if (first) {
+                first = false;
+            } else if (!py && previousCharIsInvalid) {
+                //
+            } else {
+                r += " ";
+            }
+
+            r += (py ? py : c);
+            previousCharIsInvalid = !py;
+        }
+
+        if (r.length === 0) {
+            return s;
+        }
+        return r + "\n" + s
+    };
 
     //----------------------------------------------------
 
@@ -86,6 +127,9 @@ module.exports = function (container) {
                 canplay = true;
                 lines = e;
                 // console.log(e);
+                for (var i = 0; i < lines.length; i ++) {
+                    lines[i] = getPinyin(lines[i]);
+                }
 
                 titlePanel.innerText = title;
                 for (var i = 0; i < 5; i ++) {
