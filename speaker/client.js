@@ -83,8 +83,8 @@ module.exports = function (container) {
             color: "#aaa",
             // border: "1px dotted #ccc",
             // borderRadius: "5px",
-            margin: "15px 0",
-            padding: "15px 5px",
+            margin: "9px 0",
+            padding: "9px 5px",
             textAlign: "center"
         });
 
@@ -125,10 +125,10 @@ module.exports = function (container) {
             // continous: true,
             onload: function (e) {
                 canplay = true;
-                lines = e;
+                lines = [];
                 // console.log(e);
-                for (var i = 0; i < lines.length; i ++) {
-                    lines[i] = getPinyin(lines[i]);
+                for (var i = 0; i < e.length; i ++) {
+                    lines.push(getPinyin(e[i]));
                 }
 
                 titlePanel.innerText = title;
