@@ -17,17 +17,102 @@ function isFunction(f) {
 
 //----------------------------------------------------------------------------
 
+var ua = navigator ? navigator.userAgent : "";
+
+var isAndroid = (ua && ua.match(/android/i) ? true : false);
+var isiOS = (ua && ua.match(/ipad|iphone/i) ? true : false);
+var isMac = (ua && ua.match(/mac\sos/i) ? true : false);
+var isWeChat = (ua && ua.match(/wechat|micromessenger|weixin/i) ? true : false);
+
+var isSafari = (ua && ua.match(/safari/i) && (!ua.match(/chrome/i)) ? true : false);
+
+var chromeVersion = 0;
+if (ua) {
+    var a = ua.match(/chrome\/(\d+)/i);
+    if (a && (a.length >= 2)) {
+        chromeVersion = parseInt(a[1]);
+        if (chromeVersion === NaN) {
+            chromeVersion = 0;
+        }
+    }
+}
+
+var ul = (navigator ? navigator.userLanguage || navigator.language : "");
+var isEnglish = (ul && (ul.indexOf("zh") >= 0) ? false : true);
+
+var supportMSE = (MediaSource && MediaSource.isTypeSupported("video/mp4; codecs=\"avc1.42E01E,mp4a.40.2\"") ? true : false);
+var supportM3U8 = isAndroid || isiOS || (isMac && isSafari);
+
+function isPortrait() {
+    if (isAndroid || isiOS) {
+        switch (window.orientation) {
+            case 0:
+            case 180:
+                return true;
+
+            case -90:
+            case 90:
+                return false;
+        }
+
+        return screen.availHeight > screen.availWidth;
+    }
+
+    return false;
+};
+
+//----------------------------------------------------------------------------
+
 var icon = {
+    input: {
+        CHECKBOX_ON: "\ue918",
+        CHECKBOX_OFF: "\ue919",
+
+        RADIO_ON: "\ue91a",
+        RADIO_OFF: "\ue916",
+
+        START_ON: "\ue91b",
+        START_HALF: "\ue91c",
+        START_OFF: "\ue91d",
+
+        ADD: "\ue911",
+        REMOVE: "\ue914",
+
+        UPLOAD: "\ue915",
+        DOWNLOAD: "\ue910"
+    },
+    win: {
+        CONFIRM: "\ue924",
+        INFO: "\ue922",
+        ERROR: "\ue900",
+
+        MAX: "",
+        RESTORE: "",
+        MIN: "",
+
+        CLOSE: "\ue913"
+    },
     player: {
         PLAY: "\ue905",
         PAUSE: "\ue904",
         STOP: "\ue90b",
+        
         FRONT: "\ue90a",
         PREVIOUS: "\ue902",
         NEXT: "\ue901",
         TAIL: "\ue909",
+
+        VOLUME_UP: "\ue90f",
+        VOLUME_DOWN: "\ue90c",
+        VOLUME_OFF: "\ue90e",
+        
         REPEAT: "\ue906",
-        REPEAT_ONE: "\ue907"
+        REPEAT_ONE: "\ue907",
+
+        FULLSCREEN: "\ue91e",
+        EXIT_FULLSCREEN: "\ue91f",
+
+        SETTINGS: "\ue917"
     }
 };
 
@@ -236,7 +321,23 @@ function button(s, onclick) {
 
 //----------------------------------------------------------------------------
 
+function info (s) {};
+function error (s) {
+    window.alert(s);
+};
+function confirm (s) {};
+
+//----------------------------------------------------------------------------
+
 module.exports = {
+    iOS: isiOS,
+    android: isAndroid,
+    chrome: chromeVersion,
+    mse: supportMSE,
+    m3u8: supportM3U8,
+    en: isEnglish,
+    protrait: isPortrait,
+
     icon: icon,
 
     div: div,
@@ -246,5 +347,10 @@ module.exports = {
     textInput: textInput,
     passwordInput: passwordInput,
     fileInput: fileInput,
-    button: button
+    button: button,
+
+    info: info,
+    error: error,
+
+    confirm: confirm
 };

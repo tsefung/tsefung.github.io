@@ -40,10 +40,8 @@ module.exports = function (container) {
     for (var i = 0; i < 5; i ++) {
         var p = ui.div().$style({
             color: "#aaa",
-            fontSize: "24px",
-            minHeight: "24px",
-            border: "1px dotted #ccc",
-            borderRadius: "5px",
+            // border: "1px dotted #ccc",
+            // borderRadius: "5px",
             margin: "15px 0",
             padding: "15px 5px",
             textAlign: "center"
@@ -78,6 +76,7 @@ module.exports = function (container) {
     //----------------------------------------------------
 
     function play(src, title) {
+
         canplay = false;
 
         speech.load({
@@ -91,6 +90,7 @@ module.exports = function (container) {
                 titlePanel.innerText = title;
                 for (var i = 0; i < 5; i ++) {
                     subtitlePanels[i].innerText = (i < lines.length ? lines[i] : "");
+                    subtitlePanels[i].style.fontSize = (i === 0 ? "24px" : "16px");
                     subtitlePanels[i].style.color = (i === 0 ? "#333" : "#ccc");
                 }
             },
@@ -124,6 +124,7 @@ module.exports = function (container) {
 
                 for (var i = 0, j = start; i < subtitlePanels.length; i ++, j ++) {
                     subtitlePanels[i].innerText = (j <= end ? lines[j] : "");
+                    subtitlePanels[i].style.fontSize = (j === cur ? "24px" : "16px");
                     subtitlePanels[i].style.color = (j === cur ? "#333" : "#ccc");
                 }
 

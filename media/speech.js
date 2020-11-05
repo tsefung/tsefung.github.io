@@ -1,4 +1,6 @@
 
+var ui = require("../ui/basic");
+
 var instance = null;
 
 var string2array = function (s) {
@@ -14,6 +16,7 @@ var string2array = function (s) {
         c = ss.charAt(i);
         switch (c) {
             case "，":
+            case "；":
             case "。":
             case "！":
             case "？":
@@ -36,7 +39,7 @@ var string2array = function (s) {
                     if (c === "”") {
                         if (t.length > 20) {
                             var tt = "";
-                            for (var j = 0; j < t.length; j ++) {
+                            for (var j = 0; j < t.length; j++) {
                                 c = t.charAt(j);
                                 switch (c) {
                                     case "，":
@@ -101,7 +104,7 @@ var createNew = function () {
     //----------------------------------------------------
 
     var utterance = new SpeechSynthesisUtterance();
-    utterance.rate = 0.9;
+    utterance.rate = 0.8;
 
     //----------------------------------------------------
 
