@@ -116,11 +116,16 @@ var icon = {
     }
 };
 
-//----------------------------------------------------------------------------
+var style = {
+};
 
-var body = document.body;
-var get = document.getElementById;
-var log = console.log;
+var color = {
+    background: {
+        light: ["#ffe", "#fef", "#eff", "#eef", "#efe", "#fee"]
+    }
+};
+
+//----------------------------------------------------------------------------
 
 function create(tagName) {
     var e = document.createElement(tagName);
@@ -159,10 +164,10 @@ function create(tagName) {
             for (var event in events) {
                 var handle = events[event];
                 if (isFunction(handle)) {
-                    e.addEventListener(event, handle);
+                    e[event] = handle;
                 }
             }
-            if (events["click"]) {
+            if (isFunction(events.onclick)) {
                 e.style.cursor = "pointer";
             }
         }
@@ -171,8 +176,9 @@ function create(tagName) {
 
     //----------------------------------------------------
 
+    // var lastDisplay
     e.$hide = function () {
-        e.setAttribtue("hidden", "hidden");
+        e.setAttribute("hidden", "hidden");
         return e;
     };
     e.$show = function () {
@@ -339,6 +345,8 @@ module.exports = {
     protrait: isPortrait,
 
     icon: icon,
+    style: style,
+    color: color,
 
     div: div,
     span: span,

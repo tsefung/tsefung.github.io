@@ -127,7 +127,7 @@ var createNew = function () {
                             return;
                         }
 
-                        currentLine = 0;
+                        currentLine = -1;
 
                         //--------------------------------
 
@@ -184,6 +184,12 @@ var createNew = function () {
         speechSynthesis.speak(utterance);
     };
 
+    var seek = function (i) {
+        if (i < 0 || i >= lines.length) {
+            return;
+        }
+        currentLine = i;
+    };
     var front = function () {
         if (!isSpeaking) {
             currentLine = 0;
@@ -224,6 +230,7 @@ var createNew = function () {
         load: load,
 
         play: play,
+        seek: seek,
 
         front: front,
         prev: prev,

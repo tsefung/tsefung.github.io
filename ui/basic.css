@@ -5,6 +5,11 @@
 	font-style: normal;
 }
 
+body {
+	font-family: "Times New Roman", Times, serif;
+	user-select: none;
+}
+
 .ui {
 	font-family: "ui" !important;
 	speak: none;

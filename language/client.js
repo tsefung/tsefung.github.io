@@ -1,9 +1,9 @@
-var Speech = require("../media/speech");
-var pinyin = require("./pinyin");
 var ui = require("../ui/basic");
 
-module.exports = function (container) {
+var Speech = require("./speech");
+var pinyin = require("./pinyin");
 
+module.exports = function () {
     var speech = Speech.getInstance();
 
     var canplay = false;
@@ -20,7 +20,6 @@ module.exports = function (container) {
         }
         pinyin_map[pinyin_array[i][0]] = pinyin_array[i].substr(1);
     }
-    // console.log(pinyin_map);
 
     function getPinyin(s) {
         var r = "";
@@ -81,8 +80,6 @@ module.exports = function (container) {
     for (var i = 0; i < 5; i ++) {
         var p = ui.div().$style({
             color: "#aaa",
-            // border: "1px dotted #ccc",
-            // borderRadius: "5px",
             margin: "9px 0",
             padding: "9px 5px",
             textAlign: "center"
@@ -126,7 +123,6 @@ module.exports = function (container) {
             onload: function (e) {
                 canplay = true;
                 lines = [];
-                // console.log(e);
                 for (var i = 0; i < e.length; i ++) {
                     lines.push(getPinyin(e[i]));
                 }
@@ -134,8 +130,8 @@ module.exports = function (container) {
                 titlePanel.innerText = title;
                 for (var i = 0; i < 5; i ++) {
                     subtitlePanels[i].innerText = (i < lines.length ? lines[i] : "");
-                    subtitlePanels[i].style.fontSize = (i === 0 ? "24px" : "16px");
-                    subtitlePanels[i].style.color = (i === 0 ? "#333" : "#ccc");
+                    subtitlePanels[i].style.fontSize = "16px";
+                    subtitlePanels[i].style.color = "#ccc";
                 }
             },
             onplay: function (cur) {
@@ -152,10 +148,6 @@ module.exports = function (container) {
                     end = 4;
                     if (end >= lines.length) {
                         end = lines.length - 1;
-                        if (end < 0) {
-                            // This scenaro will not occur, because lines.length is 1 at least.
-                            end = 0;
-                        }
                     }
                 } else if (end >= lines.length) {
                     end = lines.length - 1;
@@ -182,13 +174,28 @@ module.exports = function (container) {
         });
     };
 
-    //----------------------------------------------------
+    function render(container) {
+        var frag = document.createDocumentFragment();
 
-    ui.div().$append(titlePanel).$append(subtitlePanels).$append([progressPanel, btnPanel]).$parent(container);
+        frag.appendChild(titlePanel);
+        for (var i = 0; i < subtitlePanels.length; i ++) {
+            frag.appendChild(subtitlePanels[i]);
+        }
+        frag.appendChild(progressPanel);
+        frag.appendChild(btnPanel);
+
+        //------------------------------------------------
+
+        var parent = (container ? container : document.body);
+
+        parent.innerHTML = "";
+        parent.appendChild(frag);
+    };
 
     //----------------------------------------------------
 
     return {
+        render: render,
         play: play
     };
 };
