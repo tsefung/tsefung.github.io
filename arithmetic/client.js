@@ -9,6 +9,10 @@ var OPERATOR_DIV = 3;
 
 var OPERATOR_CHARACTERS = ["+", "-", "×", "÷"];
 
+function rand(max, min) {
+    return Math.round(Math.random() * (max - min)) + min;
+};
+
 //----------------------------------------------------------------------------
 
 module.exports = function (container) {
@@ -36,19 +40,6 @@ module.exports = function (container) {
     var maxOperator = 1;
 
     var running = false;
-
-    /* Potential modes:
-
-        numberOfOperator = 1
-        maxOperator = 1
-        maxOperand = 10
-        maxResult = 10
-
-        numberOfOperator = 1
-        maxOperator = 1
-        maxOperand = 10
-        maxResult = 20
-    */
 
     //----------------------------------------------------
 
@@ -234,18 +225,12 @@ module.exports = function (container) {
         maxOperand = 10;
         maxResult = 10;
 
-        maxMiniute = 3;
-        maxErrorCnt = 5;
-
         initInputPanel();
     }).$huge().$parent(controlPanel);
 
     ui.button(" L2 ", function () {
         maxOperand = 10;
         maxResult = 15;
-
-        maxMiniute = 3;
-        maxErrorCnt = 5;
 
         initInputPanel();
     }).$huge().$parent(controlPanel);
@@ -254,17 +239,10 @@ module.exports = function (container) {
         maxOperand = 10;
         maxResult = 20;
 
-        maxMiniute = 3;
-        maxErrorCnt = 5;
-
         initInputPanel();
     }).$huge().$parent(controlPanel);
 
     //----------------------------------------------------
-
-    function rand(max, min) {
-        return Math.round(Math.random() * (max - min)) + min;
-    };
 
     function next() {
         // Generate operators.
@@ -285,10 +263,6 @@ module.exports = function (container) {
             case OPERATOR_ADD:
                 operands[0] = rand(maxOperand - 1, 1);
                 break;
-
-            // default:
-            //     operands[0] = rand(maxOperand, 1);
-            //     break;
         }
         switch (operators[0]) { // The second operand.
             case OPERATOR_SUB:
@@ -364,8 +338,7 @@ module.exports = function (container) {
 
         for (var i = 0; i < operators.length; i++) {
             if (i < numberOfOperator) {
-                operatorPanels[i].innerText = OPERATOR_CHARACTERS[operators[i]];
-                operatorPanels[i].$show();
+                operatorPanels[i].$show().innerText = OPERATOR_CHARACTERS[operators[i]];
             } else {
                 operatorPanels[i].$hide();
             }
