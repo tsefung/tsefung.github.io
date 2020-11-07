@@ -282,16 +282,20 @@ module.exports = function (container) {
                 operands[0] = rand(maxOperand, 3);
                 break;
 
-            default:
-                operands[0] = rand(maxOperand, 1);
+            case OPERATOR_ADD:
+                operands[0] = rand(maxOperand - 1, 1);
                 break;
+
+            // default:
+            //     operands[0] = rand(maxOperand, 1);
+            //     break;
         }
         switch (operators[0]) { // The second operand.
             case OPERATOR_SUB:
                 operands[1] = rand(operands[0] - 1, 1);
                 break;
 
-            default:
+            case OPERATOR_ADD:
                 operands[1] = rand(maxResult < maxOperand + operands[0] ? maxResult - operands[0] : maxOperand, 1);
                 break;
         }
