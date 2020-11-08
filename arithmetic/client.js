@@ -43,27 +43,25 @@ module.exports = function (container) {
 
     //----------------------------------------------------
 
-    var eachPanelWidth = Math.floor((window.innerWidth - 30) / ((numberOfOperator * 2 + 1) * 10)) * 10;
-    var eachPanelHeight = Math.floor((window.innerHeight - (ui.protrait() ? 250 : 150)) / 30) * 10;
-    if (eachPanelWidth < eachPanelHeight) {
-        eachPanelHeight = eachPanelWidth;
-    }
+    var nw = Math.floor(window.innerWidth / 50) * 10;
+    var nh = Math.floor(window.innerHeight / (ui.protrait() ? 80 : 70)) * 10;
+    var size = (nh < nw ? nh : nw);
 
-    var panelFontSize = "16";
-    if (eachPanelHeight > 72) {
-        panelFontSize = "48";
-    } else if (eachPanelHeight > 48) {
-        panelFontSize = "36";
-    } else if (eachPanelHeight > 36) {
-        panelFontSize = "24";
+    var fontSize = "16";
+    if (size > 72) {
+        fontSize = "48";
+    } else if (size > 48) {
+        fontSize = "36";
+    } else if (size > 36) {
+        fontSize = "24";
     }
 
     var panelStyle = {
         position: "relative",
-        width: eachPanelHeight.toString() + "px",
-        height: eachPanelHeight.toString() + "px",
-        lineHeight: eachPanelHeight.toString() + "px",
-        fontSize: panelFontSize + "px",
+        width: size.toString() + "px",
+        height: size.toString() + "px",
+        lineHeight: size.toString() + "px",
+        fontSize: fontSize + "px",
         textAlign: "center",
         border: "1px solid #ccc",
         borderRadius: "5px",
@@ -78,7 +76,7 @@ module.exports = function (container) {
         top: "0px",
         left: "0px",
         right: "0px",
-        height: eachPanelHeight.toString() + "px",
+        height: size.toString() + "px",
         display: "inline-flex",
         textAlign: "center"
     });
@@ -105,10 +103,10 @@ module.exports = function (container) {
 
     var timerPanel = ui.div().$style({
         position: "absolute",
-        top: (eachPanelHeight + 5).toString() + "px",
+        top: (size + 5).toString() + "px",
         left: "0px",
         right: "0px",
-        height: eachPanelHeight.toString() + "px",
+        height: size.toString() + "px",
         display: "inline-flex",
         textAlign: "center"
     });
@@ -129,10 +127,10 @@ module.exports = function (container) {
 
     var counterPanel = ui.div().$style({
         position: "absolute",
-        top: (eachPanelHeight * 2 + 10).toString() + "px",
+        top: (size * 2 + 10).toString() + "px",
         left: "0px",
         right: "0px",
-        height: eachPanelHeight.toString() + "px",
+        height: size.toString() + "px",
         display: "inline-flex",
         textAlign: "center"
     });
@@ -174,7 +172,7 @@ module.exports = function (container) {
     function initInputPanel() {
         inputPanel.innerHTML = "";
 
-        var numberOfInputsPerRow = Math.floor(window.innerWidth / 60);
+        var numberOfInputsPerRow = Math.floor(window.innerWidth / size);
         var row = null;
         for (var i = 0, j = 0; i <= maxResult; i++, j++) {
             if (j % numberOfInputsPerRow === 0) {
@@ -202,8 +200,12 @@ module.exports = function (container) {
                     }
                     render();
                 };
-            })(i)).$huge().$style({
-                width: "56px"
+            })(i)).$style({
+                margin: "0px",
+                fontSize: fontSize + "px",
+                lineHeight: size + "px",
+                width: size + "px",
+                height: size + "px"
             }).$parent(row);
         }
 
@@ -219,28 +221,47 @@ module.exports = function (container) {
 
         next();
         renderTimer();
+        render();
     };
 
-    ui.button(" L1 ", function () {
+    ui.button("L1", function () {
         maxOperand = 10;
         maxResult = 10;
 
         initInputPanel();
-    }).$huge().$parent(controlPanel);
+    }).$style({
+        margin: "0px",
+        fontSize: fontSize + "px",
+        lineHeight: size + "px",
+        width: size + "px",
+        height: size + "px"
+    }).$parent(controlPanel);
 
-    ui.button(" L2 ", function () {
+    ui.button("L2", function () {
         maxOperand = 10;
         maxResult = 15;
 
         initInputPanel();
-    }).$huge().$parent(controlPanel);
+    }).$style({
+        margin: "0px",
+        fontSize: fontSize + "px",
+        lineHeight: size + "px",
+        width: size + "px",
+        height: size + "px"
+    }).$parent(controlPanel);
 
-    ui.button(" L3 ", function () {
+    ui.button("L3", function () {
         maxOperand = 10;
         maxResult = 20;
 
         initInputPanel();
-    }).$huge().$parent(controlPanel);
+    }).$style({
+        margin: "0px",
+        fontSize: fontSize + "px",
+        lineHeight: size + "px",
+        width: size + "px",
+        height: size + "px"
+    }).$parent(controlPanel);
 
     //----------------------------------------------------
 
@@ -321,12 +342,24 @@ module.exports = function (container) {
 
             if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
                 setTimeout(renderTimer, 1e3);
+
+                renderMinutesAndSeconds();
             } else {
                 running = false;
-            }
 
-            render();
+                render();
+            }
         }
+    };
+
+    function renderMinutesAndSeconds() {
+        minutePanel.innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
+        secondPanel.innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
+    };
+
+    function renderCounters() {
+        correctPanel.innerText = correctCnt.toString();
+        errorPanel.innerText = errorCnt.toString();
     };
 
     function render() {
@@ -354,17 +387,17 @@ module.exports = function (container) {
         //------------------------------------------------
 
         if (showResult) {
-            minutePanel.$show().innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
-            secondPanel.$show().innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
+            // minutePanel.$show().innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
+            // secondPanel.$show().innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
 
-            correctPanel.$show().innerText = correctCnt.toString();
-            errorPanel.$show().innerText = errorCnt.toString();
+            // correctPanel.$show().innerText = correctCnt.toString();
+            // errorPanel.$show().innerText = errorCnt.toString();
+
+            renderMinutesAndSeconds();
+            renderCounters();
         } else {
-            minutePanel.$hide();
-            secondPanel.$hide();
-
-            correctPanel.$hide();
-            errorPanel.$hide();
+            timerPanel.$hide();
+            counterPanel.$hide();
         }
 
         //------------------------------------------------
