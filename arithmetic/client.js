@@ -4,17 +4,22 @@ var ui = require("../ui/basic");
 
 var OPERATOR_ADD = 0;
 var OPERATOR_SUB = 1;
-var OPERATOR_PLUS = 2;
+var OPERATOR_MULTIP = 2;
 var OPERATOR_DIV = 3;
 
-function generateOperatorForAdd(max, min) {
-    var n = Math.floor(Math.random() * (max - min)) + min;
-    return n;
+var OPERATOR_CHARACTERS = ["+", "-", "×", "÷"];
+
+function rand(max, min) {
+    return Math.round(Math.random() * (max - min)) + min;
 };
 
 //----------------------------------------------------------------------------
 
-module.exports = function () {
+module.exports = function (container) {
+
+    var parent = (container ? container : document.body);
+
+    //----------------------------------------------------
 
     var correctCnt = 0;
     var errorCnt = 0;
@@ -28,54 +33,69 @@ module.exports = function () {
 
     var maxMiniute = 3;
     var maxErrorCnt = 5;
-    var maxOperand = 20;
+    var maxOperand = 10;
+    var maxResult = 10;
 
     var numberOfOperator = 1;
     var maxOperator = 1;
 
+    var running = false;
+
     //----------------------------------------------------
 
-    var eachPanelHeight = Math.floor((window.innerHeight - 300) / 30) * 10;
+    var nw = Math.floor(window.innerWidth / 50) * 10;
+    var nh = Math.floor(window.innerHeight / (ui.protrait() ? 80 : 70)) * 10;
+    var size = (nh < nw ? nh : nw);
 
-    var panelFontSize = "16";
-    if (eachPanelHeight > 72) {
-        panelFontSize = "48";
-    } else if (eachPanelHeight > 48) {
-        panelFontSize = "36";
-    } else if (eachPanelHeight > 36) {
-        panelFontSize = "24";
+    var fontSize = "16";
+    if (size > 72) {
+        fontSize = "48";
+    } else if (size > 48) {
+        fontSize = "36";
+    } else if (size > 36) {
+        fontSize = "24";
     }
 
     var panelStyle = {
         position: "relative",
-        width: eachPanelHeight.toString() + "px",
-        height: eachPanelHeight.toString() + "px",
-        lineHeight: eachPanelHeight.toString() + "px",
-        fontSize: panelFontSize + "px",
+        width: size.toString() + "px",
+        height: size.toString() + "px",
+        lineHeight: size.toString() + "px",
+        fontSize: fontSize + "px",
         textAlign: "center",
         border: "1px solid #ccc",
         borderRadius: "5px",
         color: "#777",
-        margin: "auto"
+        margin: "0 2px"
     };
+
+    //----------------------------------------------------
 
     var questionPanel = ui.div().$style({
         position: "absolute",
         top: "0px",
         left: "0px",
         right: "0px",
-        height: eachPanelHeight.toString() + "px",
+        height: size.toString() + "px",
         display: "inline-flex",
         textAlign: "center"
     });
 
+    //----------------------------------------------------
+
     var operandPanels = [];
     var operatorPanels = [];
+
+    var t = ui.div().$style({
+        display: "inline-flex",
+        margin: "auto"
+    }).$parent(questionPanel);;
+
     for (var i = 0; i < operands.length; i++) {
-        operandPanels[i] = ui.div().$style(panelStyle).$parent(questionPanel);
+        operandPanels[i] = ui.div().$style(panelStyle).$parent(t);
 
         if (i < operators.length) {
-            operatorPanels[i] = ui.div().$style(panelStyle).$parent(questionPanel);
+            operatorPanels[i] = ui.div().$style(panelStyle).$parent(t);
         }
     }
 
@@ -83,10 +103,10 @@ module.exports = function () {
 
     var timerPanel = ui.div().$style({
         position: "absolute",
-        top: (eachPanelHeight + 10).toString() + "px",
+        top: (size + 5).toString() + "px",
         left: "0px",
         right: "0px",
-        height: eachPanelHeight.toString() + "px",
+        height: size.toString() + "px",
         display: "inline-flex",
         textAlign: "center"
     });
@@ -107,10 +127,10 @@ module.exports = function () {
 
     var counterPanel = ui.div().$style({
         position: "absolute",
-        top: (eachPanelHeight * 2 + 20).toString() + "px",
+        top: (size * 2 + 10).toString() + "px",
         left: "0px",
         right: "0px",
-        height: eachPanelHeight.toString() + "px",
+        height: size.toString() + "px",
         display: "inline-flex",
         textAlign: "center"
     });
@@ -139,39 +159,6 @@ module.exports = function () {
         textAlign: "center"
     }).$hide();
 
-    var numberOfInputsPerRow = Math.floor(window.innerWidth / 60);
-    var row = null;
-    for (var i = 0, j = 0; i <= maxOperand; i++, j ++) {
-        if (j % numberOfInputsPerRow === 0) {
-            row = ui.div().$style({
-                display: "inline-flex"
-            }).$parent(inputPanel);
-        }
-
-        ui.button(i.toString(), (function (result) {
-            return function () {
-                // Update result.
-                if (ans === result) {
-                    correctCnt++;
-                    correctPanel.innerText = correctCnt.toString();
-                } else {
-                    errorCnt++;
-                    errorPanel.innerText = errorCnt.toString();
-                }
-
-                if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
-                    // Show next question.
-                    next();
-                } else {
-                    inputPanel.$hide();
-                    controlPanel.$show();
-                }
-            };
-        })(i)).$huge().$style({
-            width: "56px"
-        }).$parent(row);
-    }
-
     //----------------------------------------------------
 
     var controlPanel = ui.div().$style({
@@ -182,45 +169,101 @@ module.exports = function () {
         textAlign: "center"
     });
 
-    var startBtn = ui.button("Go", function () {
+    function initInputPanel() {
+        inputPanel.innerHTML = "";
+
+        var numberOfInputsPerRow = Math.floor(window.innerWidth / size);
+        var row = null;
+        for (var i = 0, j = 0; i <= maxResult; i++, j++) {
+            if (j % numberOfInputsPerRow === 0) {
+                row = ui.div().$style({
+                    display: "inline-flex"
+                }).$parent(inputPanel);
+            }
+
+            ui.button(i.toString(), (function (result) {
+                return function () {
+                    // Update result.
+                    if (ans === result) {
+                        correctCnt++;
+                        correctPanel.innerText = correctCnt.toString();
+                    } else {
+                        errorCnt++;
+                        errorPanel.innerText = errorCnt.toString();
+                    }
+
+                    if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
+                        // Show next question.
+                        next();
+                    } else {
+                        running = false;
+                    }
+                    render();
+                };
+            })(i)).$style({
+                margin: "0px",
+                fontSize: fontSize + "px",
+                lineHeight: size + "px",
+                width: size + "px",
+                height: size + "px"
+            }).$parent(row);
+        }
+
+        //------------------------------------------------
+
         correctCnt = 0;
         errorCnt = 0;
 
         minutes = 0;
-        seconds = 0;
+        seconds = -1;
 
-        controlPanel.$hide();
-        inputPanel.$show();
+        running = true;
 
-        correctPanel.innerText = correctCnt.toString();
-        errorPanel.innerText = errorCnt.toString();
-
+        next();
         renderTimer();
-    }).$huge().$parent(controlPanel);
-
-    //----------------------------------------------------
-
-    function rand(max, min) {
-        return Math.round(Math.random() * (max - min)) + min;
+        render();
     };
 
-    // function start(options) {
-    //     if (options.maxMiniute >= 0) {
-    //         maxMiniute = options.maxMiniute;
-    //     }
-    //     if (options.maxErrorCnt >= 0) {
-    //         maxErrorCnt = options.maxErrorCnt;
-    //     }
-    //     if (options.maxOperand >= 0) {
-    //         maxOperand = options.maxOperand;
-    //     }
-    //     if (options.numberOfOperator >= 0) {
-    //         numberOfOperator = options.numberOfOperator;
-    //     }
-    //     if (options.maxOperator >= 0) {
-    //         maxOperator = options.maxOperator;
-    //     }
-    // };
+    ui.button("L1", function () {
+        maxOperand = 10;
+        maxResult = 10;
+
+        initInputPanel();
+    }).$style({
+        margin: "0px",
+        fontSize: fontSize + "px",
+        lineHeight: size + "px",
+        width: size + "px",
+        height: size + "px"
+    }).$parent(controlPanel);
+
+    ui.button("L2", function () {
+        maxOperand = 10;
+        maxResult = 15;
+
+        initInputPanel();
+    }).$style({
+        margin: "0px",
+        fontSize: fontSize + "px",
+        lineHeight: size + "px",
+        width: size + "px",
+        height: size + "px"
+    }).$parent(controlPanel);
+
+    ui.button("L3", function () {
+        maxOperand = 10;
+        maxResult = 20;
+
+        initInputPanel();
+    }).$style({
+        margin: "0px",
+        fontSize: fontSize + "px",
+        lineHeight: size + "px",
+        width: size + "px",
+        height: size + "px"
+    }).$parent(controlPanel);
+
+    //----------------------------------------------------
 
     function next() {
         // Generate operators.
@@ -228,60 +271,146 @@ module.exports = function () {
             if (i < numberOfOperator) {
                 operators[i] = rand(maxOperator, 0);
             } else {
-                operators[i] = 0;
+                operators[i] = OPERATOR_ADD;
             }
         }
 
-
         // Generate operands.
-        for (var i = 0; i < operands.length; i++) {
-            if (i < numberOfOperator) {
-                //
-            } else {
-                operands[i] = 0;
-            }
+        switch (operators[0]) { // The first operand.
+            case OPERATOR_SUB:
+                operands[0] = rand(maxOperand, 3);
+                break;
+
+            case OPERATOR_ADD:
+                operands[0] = rand(maxOperand - 1, 1);
+                break;
+        }
+        switch (operators[0]) { // The second operand.
+            case OPERATOR_SUB:
+                operands[1] = rand(operands[0] - 1, 1);
+                break;
+
+            case OPERATOR_ADD:
+                operands[1] = rand(maxResult < maxOperand + operands[0] ? maxResult - operands[0] : maxOperand, 1);
+                break;
+        }
+        if (numberOfOperator === 2) {
+            // TODO:
+            // The third operand.
+        } else {
+            operators[1] = OPERATOR_ADD;
+            operands[2] = 0;
         }
 
         // Compute the answer.
         ans = 0;
+        switch (operators[0]) {
+            case OPERATOR_ADD:
+                ans = operands[0] + operands[1];
+                break;
+
+            case OPERATOR_SUB:
+                ans = operands[0] - operands[1];
+                break;
+
+            case OPERATOR_MULTIP:
+                ans = operands[0] * operands[1];
+                break;
+
+            case OPERATOR_DIV:
+                ans = operands[0] / operands[1];
+                break;
+        }
+        switch (operators[1]) {
+            case OPERATOR_ADD:
+                ans += operands[2];
+                break;
+
+            case OPERATOR_SUB:
+                ans -= operands[2];
+                break;
+        }
     };
 
     function renderTimer() {
-        seconds++;
-        if (seconds >= 60) {
-            seconds = 0;
-            minutes++;
-        }
+        if (running) {
+            seconds++;
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+            }
 
-        minutePanel.innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "\'";
-        secondPanel.innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
+            if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
+                setTimeout(renderTimer, 1e3);
 
-        if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
-            setTimeout(renderTimer, 1e3);
-        } else {
-            controlPanel.$show();
-            inputPanel.$hide();
+                renderMinutesAndSeconds();
+            } else {
+                running = false;
+
+                render();
+            }
         }
     };
 
-    function render(container) {
-        var parent = (container ? container : document.body);
+    function renderMinutesAndSeconds() {
+        minutePanel.innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
+        secondPanel.innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
+    };
+
+    function renderCounters() {
+        correctPanel.innerText = correctCnt.toString();
+        errorPanel.innerText = errorCnt.toString();
+    };
+
+    function render() {
         parent.innerHTML = "";
 
-        for (var i = 0; i < operands.length; i ++) {
-            if (i <= numberOfOperator) {
-                operandPanels[i].$show();
-            } else {
-                operandPanels[i].$hide();
-            }
-        }
-        for (var i = 0; i < operators.length; i ++) {
+        var showResult = running || minutes > 0 || seconds > 0;
+
+        //------------------------------------------------
+
+        for (var i = 0; i < operators.length; i++) {
             if (i < numberOfOperator) {
-                operatorPanels[i].$show();
+                operatorPanels[i].$show().innerText = OPERATOR_CHARACTERS[operators[i]];
             } else {
                 operatorPanels[i].$hide();
             }
         }
+        for (var i = 0; i < operands.length; i++) {
+            if (i <= numberOfOperator) {
+                operandPanels[i].$show().innerText = showResult ? operands[i].toString() : "?";
+            } else {
+                operandPanels[i].$hide();
+            }
+        }
+
+        //------------------------------------------------
+
+        if (showResult) {
+            // minutePanel.$show().innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
+            // secondPanel.$show().innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
+
+            // correctPanel.$show().innerText = correctCnt.toString();
+            // errorPanel.$show().innerText = errorCnt.toString();
+
+            renderMinutesAndSeconds();
+            renderCounters();
+        } else {
+            timerPanel.$hide();
+            counterPanel.$hide();
+        }
+
+        //------------------------------------------------
+
+        if (running) {
+            inputPanel.$show();
+            controlPanel.$hide();
+        } else {
+            inputPanel.$hide();
+            controlPanel.$show();
+        }
+
+        //------------------------------------------------
 
         var frag = document.createDocumentFragment();
 
