@@ -10,17 +10,7 @@ module.exports = function () {
     var lines = [];
 
     //----------------------------------------------------
-    // Initiate Pinyin map.
-
-    var pinyin_map = {};
-    var pinyin_array = pinyin.split(",");
-    for (var i = 0; i < pinyin_array.length; i ++) {
-        if (pinyin_array[i].length === 0) {
-            continue;
-        }
-        pinyin_map[pinyin_array[i][0]] = pinyin_array[i].substr(1);
-    }
-
+    
     function getPinyin(s) {
         var r = "";
 
@@ -28,7 +18,7 @@ module.exports = function () {
         var first = true;
         for (var i = 0; i < s.length; i ++) {
             var c = s.charAt(i);
-            var py = pinyin_map[c];
+            var py = pinyin.char2Pinyin[c];
 
             if (first) {
                 first = false;

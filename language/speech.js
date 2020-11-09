@@ -1,7 +1,7 @@
 
 var instance = null;
 
-var string2array = function (s) {
+function string2array(s) {
     var a = [];
     var n = s.length;
     var i = 0;
@@ -89,7 +89,13 @@ var string2array = function (s) {
     return a;
 };
 
-var createNew = function () {
+var supported = (
+    typeof window.SpeechSynthesisUtterance !== "object" ||
+    typeof window.speechSynthesis !== "object" ||
+    typeof window.speechSynthesis.speak !== "function"
+) ? false : true;
+
+function createNew() {
 
     var continous = false;
     var loop = true;
@@ -101,12 +107,17 @@ var createNew = function () {
 
     //----------------------------------------------------
 
-    var utterance = new SpeechSynthesisUtterance();
+    var utterance = {};
+    if (supported) {
+        utterance = new SpeechSynthesisUtterance();
+    } else {
+        //
+    }
     utterance.rate = 0.8;
 
     //----------------------------------------------------
 
-    var load = function (options) {
+    function load(options) {
         if (!options || !options.src) {
             return;
         }
@@ -171,7 +182,7 @@ var createNew = function () {
         );
     };
 
-    var play = function () {
+    function play() {
         if (isSpeaking || lines.length === 0) {
             return;
         }
@@ -181,21 +192,25 @@ var createNew = function () {
         }
 
         utterance.text = lines[currentLine].replace(/[，；。：“”‘！？,;.:"'!?]/g, "");
-        speechSynthesis.speak(utterance);
+        if (supported) {
+            speechSynthesis.speak(utterance);
+        } else {
+            //
+        }
     };
 
-    var seek = function (i) {
+    function seek(i) {
         if (i < 0 || i >= lines.length) {
             return;
         }
         currentLine = i;
     };
-    var front = function () {
+    function front() {
         if (!isSpeaking) {
             currentLine = 0;
         }
     };
-    var prev = function () {
+    function prev() {
         if (!isSpeaking) {
             currentLine--;
             if (currentLine < 0) {
@@ -203,7 +218,7 @@ var createNew = function () {
             }
         }
     };
-    var next = function () {
+    function next() {
         if (!isSpeaking) {
             if (lines.length > 0) {
                 currentLine++;
@@ -216,7 +231,7 @@ var createNew = function () {
             }
         }
     };
-    var tail = function () {
+    function tail() {
         if (!isSpeaking) {
             if (lines.length > 0) {
                 currentLine = lines.length - 1;

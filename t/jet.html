@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>JavaScript Encoding Tools</title>
+</head>
+<body>
+<script>
+function trans(s) {
+    var map = {}; // <pinyin, [characters]>
+
+    var array = s.split(",");
+    var temp = "";
+    var key = "";
+    var value = "";
+    var bucket = [];
+    for (var i = 0; i < array.length; i ++) {
+        temp = array[i].trim();
+        if (temp.length < 1) {
+            continue;
+        }
+
+        key = temp.substr(1);
+        value = temp.charAt(0);
+
+        bucket = map[key];
+        if (!bucket) {
+            map[key] = [value];
+        } else {
+            bucket.push(value);
+        }
+    }
+
+    temp = "var pinyin={";
+    var first = true;
+    for (key in map) {
+        if (first) {
+            first = false;
+        } else {
+            temp += ",";
+        }
+
+        bucket = map[key].sort(function (a, b) {
+            return a - b;
+        });
+        temp += "\"" + key + "\":\"" + bucket.join("") + "\"";
+    }
+    temp += "};"
+    return temp;
+};
+
+function download(s, name) {
+    var b = new Blob([s]);
+
+    var a = document.createElement("a");
+    a.download = name;
+    a.href = URL.createObjectURL(b);
+    a.click();
+};
+
+function string2buffer(s) {
+    for (var i = 0; i < s.length; i ++) {
+        //
+    }
+};
+
+function buffer2string(b) {
+    var view = new Uint16Array(b);
+
+};
+
+window.onload = function () {
+    // Text file.
+    var sfi = document.createElement("input");
+    sfi.type = "file";
+    sfi.onchange = function () {
+        var fr = new FileReader();
+        fr.onload = function () {
+            // console.log("onload", fr.result);
+            var r = trans(fr.result);
+            // console.log("trans", r);
+
+            download(r, "pinyinM");
+        };
+        fr.readAsText(sfi.files[0]);
+    };
+    document.body.appendChild(sfi);
+
+    // Binary file.
+    var bfi = document.createElement("input");
+    bfi.type = "file";
+    bfi.onchange = function () {
+        var fr = new FileReader();
+        fr.onload = function () {
+            //
+        };
+        fr.readAsArrayBuffer(bfi.files[0]);
+    };
+    document.body.appendChild(bfi);
+};
+</script>
+</body>
+</html>
