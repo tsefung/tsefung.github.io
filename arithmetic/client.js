@@ -1,6 +1,5 @@
 var ui = require("../ui/basic");
 
-//----------------------------------------------------------------------------
 
 var OPERATOR_ADD = 0;
 var OPERATOR_SUB = 1;
@@ -13,263 +12,99 @@ function rand(max, min) {
     return Math.round(Math.random() * (max - min)) + min;
 };
 
-//----------------------------------------------------------------------------
+function computeFontSize(px) {
+    // if (px >= 72) {
+        // return 56;
+    // } else 
+    if (px >= 56) {
+        return 48;
+    } else if (px >= 48) {
+        return 36;
+    } else if (px >= 36) {
+        return 24;
+    } else {
+        return 16;
+    }
+};
+
+function computeInputSize(n) {
+    var nH = Math.ceil(Math.sqrt(n * window.innerHeight / (2 * window.innerWidth)));
+    var nW = Math.ceil(n / nH);
+
+    var pxH = Math.floor(window.innerHeight / (2 * nH));
+    var pxW = Math.floor(window.innerWidth / nW);
+
+    var px = pxH < pxW ? pxH : pxW;
+    var fs = computeFontSize(px);
+
+    return {
+        cellsPerRow: nW,
+        cellSize: px,
+        fontSize: fs,
+
+        style: {
+            position: "relative",
+            width: px + "px",
+            height: px + "px",
+            lineHeight: px + "px",
+            fontSize: fs + "px",
+            textAlign: "center",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            color: "#fff",
+            backgroundColor: "#aaa",
+            margin: "1px"
+        }
+    };
+};
 
 module.exports = function (container) {
-
     var parent = (container ? container : document.body);
 
-    //----------------------------------------------------
+    var status = {
+        correctCnt: 0,
+        errorCnt: 0,
 
-    var correctCnt = 0;
-    var errorCnt = 0;
+        minutes: 0,
+        seconds: 0,
 
-    var minutes = 0;
-    var seconds = 0;
+        running: false
+    };
 
     var operands = [0, 0, 0];
     var operators = [0, 0];
     var ans = 0;
 
-    var maxMiniute = 3;
-    var maxErrorCnt = 5;
-    var maxOperand = 10;
-    var maxResult = 10;
+    var config = {
+        maxMinutes: 3,
+        maxErrorCnt: 5,
+        maxOperand: 10,
+        maxOperator: 1,
+        maxResult: 20,
 
-    var numberOfOperator = 1;
-    var maxOperator = 1;
-
-    var running = false;
-
-    //----------------------------------------------------
-
-    var nw = Math.floor(window.innerWidth / 50) * 10;
-    var nh = Math.floor(window.innerHeight / (ui.protrait() ? 80 : 70)) * 10;
-    var size = (nh < nw ? nh : nw);
-
-    var fontSize = "16";
-    if (size > 72) {
-        fontSize = "48";
-    } else if (size > 48) {
-        fontSize = "36";
-    } else if (size > 36) {
-        fontSize = "24";
-    }
-
-    var panelStyle = {
-        position: "relative",
-        width: size.toString() + "px",
-        height: size.toString() + "px",
-        lineHeight: size.toString() + "px",
-        fontSize: fontSize + "px",
-        textAlign: "center",
-        border: "1px solid #ccc",
-        borderRadius: "5px",
-        color: "#777",
-        margin: "0 2px"
+        numberOfOperator: 1
     };
 
     //----------------------------------------------------
 
     var questionPanel = ui.div().$style({
-        position: "absolute",
-        top: "0px",
-        left: "0px",
-        right: "0px",
-        height: size.toString() + "px",
-        display: "inline-flex",
         textAlign: "center"
     });
 
-    //----------------------------------------------------
-
-    var operandPanels = [];
-    var operatorPanels = [];
-
-    var t = ui.div().$style({
-        display: "inline-flex",
-        margin: "auto"
-    }).$parent(questionPanel);;
-
+    var operandPanel = [];
     for (var i = 0; i < operands.length; i++) {
-        operandPanels[i] = ui.div().$style(panelStyle).$parent(t);
-
-        if (i < operators.length) {
-            operatorPanels[i] = ui.div().$style(panelStyle).$parent(t);
-        }
+        operandPanel.push(ui.div());
+    }
+    var operatorPanel = [];
+    for (var i = 0; i < operators.length; i++) {
+        operatorPanel.push(ui.div());
     }
 
-    //----------------------------------------------------
-
-    var timerPanel = ui.div().$style({
-        position: "absolute",
-        top: (size + 5).toString() + "px",
-        left: "0px",
-        right: "0px",
-        height: size.toString() + "px",
-        display: "inline-flex",
-        textAlign: "center"
-    });
-
-    var minutePanel = ui.div().$style(panelStyle).$style({
-        backgroundColor: "#ffe"
-    });
-    var secondPanel = ui.div().$style(panelStyle).$style({
-        backgroundColor: "#ffe"
-    });
-
-    ui.div().$style({
-        display: "inline-flex",
-        margin: "auto"
-    }).$append([minutePanel, secondPanel]).$parent(timerPanel);
-
-    //----------------------------------------------------
-
-    var counterPanel = ui.div().$style({
-        position: "absolute",
-        top: (size * 2 + 10).toString() + "px",
-        left: "0px",
-        right: "0px",
-        height: size.toString() + "px",
-        display: "inline-flex",
-        textAlign: "center"
-    });
-
-    var correctPanel = ui.div().$style(panelStyle).$style({
-        color: "#fff",
-        backgroundColor: "#5fa85f"
-    });
-    var errorPanel = ui.div().$style(panelStyle).$style({
-        color: "#fff",
-        backgroundColor: "#df5555"
-    });
-
-    ui.div().$style({
-        display: "inline-flex",
-        margin: "auto"
-    }).$append([correctPanel, errorPanel]).$parent(counterPanel);
-
-    //----------------------------------------------------
-
-    var inputPanel = ui.div().$style({
-        position: "absolute",
-        left: "0px",
-        right: "0px",
-        bottom: "0px",
-        textAlign: "center"
-    }).$hide();
-
-    //----------------------------------------------------
-
-    var controlPanel = ui.div().$style({
-        position: "absolute",
-        left: "0px",
-        right: "0px",
-        bottom: "0px",
-        textAlign: "center"
-    });
-
-    function initInputPanel() {
-        inputPanel.innerHTML = "";
-
-        var numberOfInputsPerRow = Math.floor(window.innerWidth / size);
-        var row = null;
-        for (var i = 0, j = 0; i <= maxResult; i++, j++) {
-            if (j % numberOfInputsPerRow === 0) {
-                row = ui.div().$style({
-                    display: "inline-flex"
-                }).$parent(inputPanel);
-            }
-
-            ui.button(i.toString(), (function (result) {
-                return function () {
-                    // Update result.
-                    if (ans === result) {
-                        correctCnt++;
-                        correctPanel.innerText = correctCnt.toString();
-                    } else {
-                        errorCnt++;
-                        errorPanel.innerText = errorCnt.toString();
-                    }
-
-                    if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
-                        // Show next question.
-                        next();
-                    } else {
-                        running = false;
-                    }
-                    render();
-                };
-            })(i)).$style({
-                margin: "0px",
-                fontSize: fontSize + "px",
-                lineHeight: size + "px",
-                width: size + "px",
-                height: size + "px"
-            }).$parent(row);
-        }
-
-        //------------------------------------------------
-
-        correctCnt = 0;
-        errorCnt = 0;
-
-        minutes = 0;
-        seconds = -1;
-
-        running = true;
-
-        next();
-        renderTimer();
-        render();
-    };
-
-    ui.button("L1", function () {
-        maxOperand = 10;
-        maxResult = 10;
-
-        initInputPanel();
-    }).$style({
-        margin: "0px",
-        fontSize: fontSize + "px",
-        lineHeight: size + "px",
-        width: size + "px",
-        height: size + "px"
-    }).$parent(controlPanel);
-
-    ui.button("L2", function () {
-        maxOperand = 10;
-        maxResult = 15;
-
-        initInputPanel();
-    }).$style({
-        margin: "0px",
-        fontSize: fontSize + "px",
-        lineHeight: size + "px",
-        width: size + "px",
-        height: size + "px"
-    }).$parent(controlPanel);
-
-    ui.button("L3", function () {
-        maxOperand = 10;
-        maxResult = 20;
-
-        initInputPanel();
-    }).$style({
-        margin: "0px",
-        fontSize: fontSize + "px",
-        lineHeight: size + "px",
-        width: size + "px",
-        height: size + "px"
-    }).$parent(controlPanel);
-
-    //----------------------------------------------------
-
-    function next() {
+    function generate() {
         // Generate operators.
         for (var i = 0; i < operators.length; i++) {
-            if (i < numberOfOperator) {
-                operators[i] = rand(maxOperator, 0);
+            if (i < config.numberOfOperator) {
+                operators[i] = rand(config.maxOperator, 0);
             } else {
                 operators[i] = OPERATOR_ADD;
             }
@@ -278,11 +113,11 @@ module.exports = function (container) {
         // Generate operands.
         switch (operators[0]) { // The first operand.
             case OPERATOR_SUB:
-                operands[0] = rand(maxOperand, 3);
+                operands[0] = rand(config.maxOperand, 3);
                 break;
 
             case OPERATOR_ADD:
-                operands[0] = rand(maxOperand - 1, 1);
+                operands[0] = rand(config.maxOperand - 1, 1);
                 break;
         }
         switch (operators[0]) { // The second operand.
@@ -291,10 +126,10 @@ module.exports = function (container) {
                 break;
 
             case OPERATOR_ADD:
-                operands[1] = rand(maxResult < maxOperand + operands[0] ? maxResult - operands[0] : maxOperand, 1);
+                operands[1] = rand(config.maxResult < config.maxOperand + operands[0] ? config.maxResult - operands[0] : config.maxOperand, 1);
                 break;
         }
-        if (numberOfOperator === 2) {
+        if (config.numberOfOperator === 2) {
             // TODO:
             // The third operand.
         } else {
@@ -330,96 +165,279 @@ module.exports = function (container) {
                 ans -= operands[2];
                 break;
         }
-    };
 
-    function renderTimer() {
-        if (running) {
-            seconds++;
-            if (seconds >= 60) {
-                seconds = 0;
-                minutes++;
-            }
+        //------------------------------------------------
 
-            if ((minutes < maxMiniute) && (errorCnt < maxErrorCnt)) {
-                setTimeout(renderTimer, 1e3);
-
-                renderMinutesAndSeconds();
-            } else {
-                running = false;
-
-                render();
-            }
+        for (var i = 0; i < operandPanel.length; i++) {
+            operandPanel[i].innerText = operands[i].toString();
+        }
+        for (var i = 0; i < operatorPanel.length; i++) {
+            operatorPanel[i].innerText = OPERATOR_CHARACTERS[operators[i]];
         }
     };
 
-    function renderMinutesAndSeconds() {
-        minutePanel.innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
-        secondPanel.innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
+    function renderQuestion() {
+        questionPanel.innerHTML = "";
+
+        var w = Math.floor((window.innerWidth - 20) / (2 * config.numberOfOperator + 1));
+        var h = Math.floor(window.innerHeight * 0.20);
+        var x = w < h ? w : h;
+
+        var style = {
+            position: "relative",
+            width: x + "px",
+            height: x + "px",
+            lineHeight: x + "px",
+            fontSize: computeFontSize(x) + "px",
+            textAlign: "center",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            margin: "1px",
+            color: "#777"
+        };
+
+        var t = ui.div().$style({
+            display: "inline-flex",
+            margin: "auto"
+        });
+        for (var i = 0; i < config.numberOfOperator + 1; i++) {
+            operandPanel[i].$style(style).$parent(t).innerText = status.running ? operands[i].toString() : "?";
+
+            if (i < config.numberOfOperator) {
+                operatorPanel[i].$style(style).$parent(t).innerText = status.running ? OPERATOR_CHARACTERS[operators[i]] : "+";
+            }
+        }
+        t.$parent(questionPanel);
     };
 
-    function renderCounters() {
-        correctPanel.innerText = correctCnt.toString();
-        errorPanel.innerText = errorCnt.toString();
+    //----------------------------------------------------
+
+    var statusPanel = ui.div().$style({
+        position: "absolute",
+        left: "0px",
+        right: "0px",
+        top: "25%",
+        textAlign: "center"
+    });
+
+    var minutePanel = ui.div().$style({
+        color: "#777",
+        backgroundColor: "#ffe"
+    });
+    var secondPanel = ui.div().$style({
+        color: "#777",
+        backgroundColor: "#ffe"
+    });
+
+    var correctPanel = ui.div().$style({
+        color: "#fff",
+        backgroundColor: "#5fa85f"
+    });
+    var errorPanel = ui.div().$style({
+        color: "#fff",
+        backgroundColor: "#df5555"
+    });
+
+    ui.div().$style({
+        display: "inline-flex",
+        margin: "auto"
+    }).$append([correctPanel, minutePanel, secondPanel, errorPanel]).$parent(statusPanel);
+
+    function onTimer() {
+        if (!status.running) {
+            return;
+        }
+
+        status.seconds++;
+        if (status.seconds >= 60) {
+            status.seconds = 0;
+            status.minutes++;
+        }
+
+        minutePanel.innerText = (status.minutes < 10 ? "0" : "") + status.minutes.toString() + "'";
+        secondPanel.innerText = (status.seconds < 10 ? "0" : "") + status.seconds.toString() + "\"";
+
+        if (status.minutes >= config.maxMinutes || status.errorCnt >= config.maxErrorCnt) {
+            running = false;
+
+            inputPanel.$hide();
+
+            return;
+        }
+
+        setTimeout(onTimer, 1e3);
     };
+
+    function renderStatus() {
+        var w = Math.floor((window.innerWidth - 20) / 4);
+        var h = Math.floor(window.innerHeight * 0.20);
+        var x = w < h ? w : h;
+
+        var style = {
+            position: "relative",
+            width: x + "px",
+            height: x + "px",
+            lineHeight: x + "px",
+            fontSize: computeFontSize(x) + "px",
+            textAlign: "center",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            margin: "1px"
+        };
+
+        minutePanel.$style(style);
+        secondPanel.$style(style);
+
+        correctPanel.$style(style);
+        errorPanel.$style(style);
+
+        if (status.running) {
+            statusPanel.$show();
+        } else {
+            statusPanel.$hide();
+        }
+    };
+
+    //----------------------------------------------------
+
+    var inputPanel = ui.div().$style({
+        position: "absolute",
+        left: "0px",
+        right: "0px",
+        bottom: "0px",
+        textAlign: "center"
+    });
+
+    function renderInputs() {
+        inputPanel.innerHTML = "";
+
+        var size = computeInputSize(config.maxResult + 1);
+        var row = null;
+        for (var i = 0, j = 0; i <= config.maxResult; i++, j++) {
+            if (j % size.cellsPerRow === 0) {
+                row = ui.div().$style({
+                    display: "inline-flex"
+                }).$parent(inputPanel);
+            }
+
+            ui.div(i.toString()).$style(size.style).$bind({
+                onclick: (function (n) {
+                    return function () {
+                        if (n === ans) {
+                            status.correctCnt++;
+                            correctPanel.innerText = status.correctCnt.toString();
+
+                            generate();
+                        } else {
+                            status.errorCnt++;
+                            errorPanel.innerText = status.errorCnt.toString();
+
+                            if (status.errorCnt >= config.maxErrorCnt) {
+                                inputPanel.$hide();
+                                controlPanel.$show();
+                            }
+                        }
+                    };
+                })(i)
+            }).$parent(row);
+        }
+
+        if (status.running) {
+            inputPanel.$show();
+        } else {
+            inputPanel.$hide();
+        }
+    };
+
+    //----------------------------------------------------
+
+    var controlPanel = ui.div().$style({
+        position: "absolute",
+        left: "0px",
+        right: "0px",
+        bottom: "0px",
+        color: "#aaa",
+        textAlign: "center"
+    });
+
+    function start() {
+        status.minutes = 0;
+        status.seconds = -1;
+
+        status.correctCnt = 0;
+        status.errorCnt = 0;
+
+        correctPanel.innerText = status.correctCnt.toString();
+        errorPanel.innerText = status.errorCnt.toString();
+
+        status.running = true;
+
+        generate();
+        onTimer();
+
+        controlPanel.$hide();
+        statusPanel.$show();
+        
+        renderInputs();
+    };
+
+    function renderControls() {
+        controlPanel.innerHTML = "";
+
+        var style = {
+            position: "relative",
+            lineHeight: "50px",
+            fontSize: "24px",
+            textAlign: "center",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            margin: "1px"
+        };
+
+        ui.div("Level 1").$parent(controlPanel).$style(style).$bind({
+            onclick: function () {
+                config.maxResult = 10;
+
+                start();
+            }
+        });
+        ui.div("Level 2").$parent(controlPanel).$style(style).$bind({
+            onclick: function () {
+                config.maxResult = 15;
+
+                start();
+            }
+        });
+        ui.div("Level 3").$parent(controlPanel).$style(style).$bind({
+            onclick: function () {
+                config.maxResult = 20;
+
+                start();
+            }
+        });
+
+        if (status.running) {
+            controlPanel.$hide();
+        } else {
+            controlPanel.$show();
+        }
+    };
+
+    //----------------------------------------------------
 
     function render() {
         parent.innerHTML = "";
 
-        var showResult = running || minutes > 0 || seconds > 0;
-
-        //------------------------------------------------
-
-        for (var i = 0; i < operators.length; i++) {
-            if (i < numberOfOperator) {
-                operatorPanels[i].$show().innerText = OPERATOR_CHARACTERS[operators[i]];
-            } else {
-                operatorPanels[i].$hide();
-            }
-        }
-        for (var i = 0; i < operands.length; i++) {
-            if (i <= numberOfOperator) {
-                operandPanels[i].$show().innerText = showResult ? operands[i].toString() : "?";
-            } else {
-                operandPanels[i].$hide();
-            }
-        }
-
-        //------------------------------------------------
-
-        if (showResult) {
-            // minutePanel.$show().innerText = (minutes < 10 ? "0" : "") + minutes.toString() + "'";
-            // secondPanel.$show().innerText = (seconds < 10 ? "0" : "") + seconds.toString() + "\"";
-
-            // correctPanel.$show().innerText = correctCnt.toString();
-            // errorPanel.$show().innerText = errorCnt.toString();
-
-            renderMinutesAndSeconds();
-            renderCounters();
-        } else {
-            timerPanel.$hide();
-            counterPanel.$hide();
-        }
-
-        //------------------------------------------------
-
-        if (running) {
-            inputPanel.$show();
-            controlPanel.$hide();
-        } else {
-            inputPanel.$hide();
-            controlPanel.$show();
-        }
-
-        //------------------------------------------------
+        renderQuestion();
+        renderStatus();
+        renderInputs();
+        renderControls();
 
         var frag = document.createDocumentFragment();
-
         frag.appendChild(questionPanel);
-        frag.appendChild(counterPanel);
-        frag.appendChild(timerPanel);
+        frag.appendChild(statusPanel);
         frag.appendChild(inputPanel);
         frag.appendChild(controlPanel);
-
         parent.appendChild(frag);
     };
 

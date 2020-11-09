@@ -1,3 +1,4 @@
+const { win } = require("../../clients/sdk/ui");
 
 function isObject(o) {
     return typeof o === "object";
@@ -152,6 +153,13 @@ function create(tagName) {
         }
         return e;
     };
+    e.$remove = function() {
+        var p = e.parentNode;
+        if (isObject(p) && p) {
+            p.removeChild(e);
+        }
+        return e;
+    };
     e.$empty = function () {
         e.innerHTML = "";
         return e;
@@ -206,7 +214,7 @@ function create(tagName) {
     };
     e.$icon = function (s) {
         if (isString(s)) {
-            e.text = s;
+            e.innerText = s;
         }
         e.className = "ui";
         return e;
@@ -327,13 +335,85 @@ function button(s, onclick) {
 
 //----------------------------------------------------------------------------
 
+function lock(s) {
+    var r = div().$style({
+        position: "fixed",
+        left: "0px",
+        right: "0px",
+        top: "0px",
+        bottom: "0px",
+        backgroundColor: "rgba(0,0,0,.7)"
+    });
+
+    return r;
+};
+function unlock() {
+    //
+};
+
+function pop (s, iconText, iconColor) {
+    var mask = lock();
+
+    var w = Math.floor(window.innerWidth * (isPortrait() ? 0.9 : 0.6));
+    if (w % 2 === 1) {
+        w += 1;
+    }
+
+    var px = Math.floor((window.innerWidth - w) / 2);
+    var py = 10;
+
+    var dialog = div().$style({
+        position: "absolute",
+        left: px + "px",
+        right: px + "px",
+        top: py + "px",
+        padding: "9px",
+        fontSize: "14px",
+        color: "#333",
+        backgroundColor: "#eee",
+        border: "1px solid #ccc",
+        borderRadius: "5px",
+        display: "inline-flex",
+        alignItems: "center"
+    }).$append(
+        div().$icon(iconText).$style({
+            color: iconColor,
+            fontSize: "30px"
+        })
+    ).$append(
+        div(s).$style({
+            marginLeft: "9px"
+        })
+    ).$append(
+        div().$icon(icon.win.CLOSE).$style({
+            color: "#aaa",
+            fontSize: "20px"
+        }).$bind({
+            onclick: function () {
+                dialog.$remove();
+                mask.$remove();
+            }
+        })
+    );
+
+    //----------------------------------------------------
+
+    var frag = document.createDocumentFragment();
+    frag.appendChild(mask);
+    frag.appendChild(dialog);
+    document.body.appendChild(frag);
+};
+
 function info (s) {
-    window.alert(s);
+    pop(s, icon.win.INFO, "limegreen");
 };
 function error (s) {
-    window.alert(s);
+    pop(s, icon.win.ERROR, "red");
 };
-function confirm (s) {};
+function confirm (s) {
+    // TODO:
+    pop(s, icon.win.CONFIRM, "orange")
+};
 
 //----------------------------------------------------------------------------
 
