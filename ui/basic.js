@@ -327,7 +327,9 @@ function button(s, onclick) {
 
 //----------------------------------------------------------------------------
 
-function info (s) {};
+function info (s) {
+    window.alert(s);
+};
 function error (s) {
     window.alert(s);
 };

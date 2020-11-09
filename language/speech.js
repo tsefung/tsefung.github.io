@@ -1,3 +1,4 @@
+const ui = require("../ui/basic");
 
 var instance = null;
 
@@ -89,14 +90,16 @@ function string2array(s) {
     return a;
 };
 
-var supported = (
-    typeof window.SpeechSynthesisUtterance !== "object" ||
-    typeof window.speechSynthesis !== "object" ||
-    typeof window.speechSynthesis.speak !== "function"
-) ? false : true;
+var supported = true;
+function showUnsupportedMessage() {
+    ui.info(
+        ui.en ?
+        "Your browser does not Speech Synthesis, try Chrome version 85 or abover instead." :
+        "您的浏览器不支持语音合成，请改用 Chrome 版本 85 或以上浏览器访问。"
+    );
+};
 
 function createNew() {
-
     var continous = false;
     var loop = true;
 
@@ -108,10 +111,11 @@ function createNew() {
     //----------------------------------------------------
 
     var utterance = {};
-    if (supported) {
+    try {
         utterance = new SpeechSynthesisUtterance();
-    } else {
-        //
+    } catch(e) {
+        supported = false;
+        showUnsupportedMessage();
     }
     utterance.rate = 0.8;
 
@@ -183,6 +187,10 @@ function createNew() {
     };
 
     function play() {
+        if (!supported) {
+            showUnsupportedMessage();
+            return;
+        }
         if (isSpeaking || lines.length === 0) {
             return;
         }
@@ -192,11 +200,7 @@ function createNew() {
         }
 
         utterance.text = lines[currentLine].replace(/[，；。：“”‘！？,;.:"'!?]/g, "");
-        if (supported) {
-            speechSynthesis.speak(utterance);
-        } else {
-            //
-        }
+        speechSynthesis.speak(utterance);
     };
 
     function seek(i) {
