@@ -94,8 +94,8 @@ var supported = true;
 function showUnsupportedMessage() {
     ui.info(
         ui.en ?
-        "Your browser does not Speech Synthesis, try Chrome version 85 or abover instead." :
-        "您的浏览器不支持语音合成，请改用 Chrome 版本 85 或以上浏览器访问。"
+        "Your browser does not Speech Synthesis, try using Chrome version 85 or abover instead." :
+        "您的浏览器不支持语音合成，请使用 Chrome 版本 85 或以上浏览器访问。"
     );
 };
 
