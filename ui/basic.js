@@ -1,3 +1,4 @@
+const ui = require("../../clients/sdk/ui");
 
 function isObject(o) {
     return (o !== null) && (typeof o === "object");
@@ -343,6 +344,53 @@ function button(s, onclick) {
     return e;
 };
 
+function checkbox(s, value) {
+    var e = div().$bind({
+        onclick: function () {
+            if (e.checked) {
+                e.$uncheck();
+            } else {
+                e.$check();
+            }
+        }
+    });
+
+    e.checked = false;
+    e.$check = function () {
+        e.checked = true;
+    };
+    e.$uncheck = function () {
+        e.checked = false;
+    };
+
+    return e;
+};
+
+function radio(s, value, groupName) {
+    var e = div().$bind({
+        onclick: function () {
+            var a = document.getElementsByName(groupName);
+            for (var i = 0; i < a.length; i ++) {
+                if (a[i] === e) {
+                    a[i].$check();
+                } else {
+                    a[i].$uncheck();
+                }
+            }
+        }
+    });
+
+    e.checked = false;
+    e.$check = function () {
+        e.checked = true;
+    };
+    e.$uncheck = function () {
+        e.checked = false;
+    };
+
+    return e;
+};
+
 //----------------------------------------------------------------------------
 
 function tile() {
@@ -444,6 +492,78 @@ function confirm(s) {
 
 //----------------------------------------------------------------------------
 
+function dialog(title) {
+    var w = Math.floor(window.innerWidth * (isPortrait() ? 0.9 : 0.6));
+    if (w % 2 === 1) {
+        w += 1;
+    }
+
+    var px = Math.floor((window.innerWidth - w) / 2);
+
+    var r = div().$style({
+        position: "absolute",
+        left: px + "px",
+        right: px + "px",
+        top: "25%",
+        padding: "9px",
+        fontSize: "14px",
+        color: "#333",
+        backgroundColor: "#eee",
+        border: "1px solid #ccc",
+        borderRadius: "5px",
+        // display: "inline-flex",
+        alignItems: "center"
+    }).$append(
+        div(title).$style({
+            fontSize: "18px",
+            lineHeight: "50px",
+            color: "deepskyblue",
+            borderBottom: "1px solid #ccc"
+        })
+    );
+
+    return r;
+};
+
+function chooseDialog(options) {
+    if (!isObject(options) ||
+        !isObject(options.items) || !options.items.length ||
+        !isFunction(options.callback)) {
+
+        return;
+    }
+
+    var mask = lock();
+
+    var dlg = dialog(options.title).$parent(mask);
+
+    for (var i = 0; i < options.items.length; i ++) {
+        ui.div(options.items[i].title).$parent(dlg);
+    }
+
+    ui.div().$style({
+        marginTop: "15px",
+        textAlign: "center"
+    }).$append(
+        button("OK", function() {
+            mask.$remove();
+        }).$small()
+    ).$parent(dlg);
+
+    //----------------------------------------------------
+
+    var frag = document.createDocumentFragment();
+    frag.appendChild(mask);
+    // frag.appendChild(dlg);
+    document.body.appendChild(frag);
+};
+
+function inputDialog(options) {
+    //
+};
+
+//----------------------------------------------------------------------------
+
 module.exports = {
     iOS: isiOS,
     android: isAndroid,
@@ -468,11 +588,15 @@ module.exports = {
     passwordInput: passwordInput,
     fileInput: fileInput,
     button: button,
+    checkbox: checkbox,
+    radio: radio,
 
     ok: ok,
     info: info,
     block: block,
     error: error,
 
-    confirm: confirm
+    confirm: confirm,
+
+    chooseDialog: chooseDialog
 };

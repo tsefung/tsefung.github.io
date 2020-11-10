@@ -51,8 +51,8 @@ function computeInputSize(n) {
             textAlign: "center",
             border: "1px solid #ccc",
             borderRadius: "5px",
-            color: "#fff",
-            backgroundColor: "#aaa",
+            color: "#777",
+            backgroundColor: "rgba(255,255,255,.3)",
             margin: "1px"
         }
     };
@@ -100,20 +100,13 @@ module.exports = function () {
 
     function generate() {
         //------------------------------------------------
-        // Generate operators.
+        // Generate the first operator.
 
-        // for (var i = 0; i < operators.length; i++) {
-        //     if (i < config.numberOfOperator) {
-        //         operators[i] = rand(config.maxOperator, 0);
-        //     } else {
-        //         operators[i] = OPERATOR_ADD;
-        //     }
-        // }
         operators[0] = rand(config.maxOperator, 0);
 
         //------------------------------------------------
         // Generate operands.
-        
+
         // The first operand.
         var n = operands[0];
         while (n === operands[0]) {
@@ -149,14 +142,18 @@ module.exports = function () {
                     operators[1] = OPERATOR_SUB;
 
                     t = operands[0] + operands[1];
-                    operands[2] = rand(t, 1);
+                    do {
+                        operands[2] = rand(t, 1);
+                    } while (operands[1] === operands[2]);
                     break;
 
                 case OPERATOR_SUB:
                     operators[1] = OPERATOR_ADD;
 
                     t = operands[0] - operands[1];
-                    operands[2] = rand(config.maxResult < config.maxOperand + t ? config.maxResult - t : config.maxOperand, 1);
+                    do {
+                        operands[2] = rand(config.maxResult < config.maxOperand + t ? config.maxResult - t : config.maxOperand, 1);
+                    } while (operands[1] === operands[2]);
                     break;
             }
         } else {
@@ -166,7 +163,7 @@ module.exports = function () {
 
         //------------------------------------------------
         // Compute the answer.
-        
+
         ans = 0;
         switch (operators[0]) {
             case OPERATOR_ADD:
@@ -452,12 +449,13 @@ module.exports = function () {
             lineHeight: "50px",
             fontSize: "18px",
             textAlign: "center",
+            backgroundColor: "rgba(255,255,255,.5)",
             border: "1px solid #ccc",
             borderRadius: "5px",
             margin: "3px 50px"
         };
 
-        for (var i = 0; i < levels.length; i ++) {
+        for (var i = 0; i < levels.length; i++) {
             ui.div(levels[i].title).$parent(controlPanel).$style(style).$bind({
                 onclick: levels[i].callback
             });

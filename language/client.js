@@ -70,7 +70,9 @@ module.exports = function () {
     for (var i = 0; i < 5; i ++) {
         var p = ui.div().$style({
             color: "#aaa",
-            margin: "9px 0",
+            backgroundColor: "rgba(255,255,255,.7)",
+            margin: "9px 5px",
+            borderRadius: "5px",
             padding: "9px 5px",
             textAlign: "center"
         });
