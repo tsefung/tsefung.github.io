@@ -92,7 +92,7 @@ function string2array(s) {
 
 var supported = true;
 function showUnsupportedMessage() {
-    ui.error(
+    ui.block(
         ui.en ?
         "Your browser does not support Speech Synthesis, try using " + (ui.iOS ? "Safari" : "Chrome (version 85 or abover)") + " instead." :
         "您的浏览器不支持语音合成，请使用 " + (ui.iOS ? "Safari " : "Chrome (版本 85 或以上)") + "浏览器访问。"

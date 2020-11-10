@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Speech Recognition</title>
+</head>
+<body>
+<script>
+window.alert("a");
+var sr = new webkitSpeechRecognition();
+sr.onresult = function (e) {
+    window.alert("onresult");
+    sr.stop();
+    window.alert(e.results[0][0].transcript + "\n" + e.results[0][0].confidence.toString());
+};
+sr.continuous = false;
+
+window.onload = function () {
+    window.alert("Start");
+    sr.start();
+    window.alert("End");
+};
+</script>
+</body>
+</html>

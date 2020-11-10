@@ -1,7 +1,6 @@
-const { win } = require("../../clients/sdk/ui");
 
 function isObject(o) {
-    return typeof o === "object";
+    return (o !== null) && (typeof o === "object");
 };
 
 function isString(s) {
@@ -22,6 +21,7 @@ var ua = navigator ? navigator.userAgent : "";
 
 var isAndroid = (ua && ua.match(/android/i) ? true : false);
 var isiOS = (ua && ua.match(/ipad|iphone/i) ? true : false);
+var isMobile = isAndroid || isiOS;
 var isMac = (ua && ua.match(/mac\sos/i) ? true : false);
 var isWeChat = (ua && ua.match(/wechat|micromessenger|weixin/i) ? true : false);
 
@@ -42,10 +42,10 @@ var ul = (navigator ? navigator.userLanguage || navigator.language : "");
 var isEnglish = (ul && (ul.indexOf("zh") >= 0) ? false : true);
 
 var supportMSE = (MediaSource && MediaSource.isTypeSupported("video/mp4; codecs=\"avc1.42E01E,mp4a.40.2\"") ? true : false);
-var supportM3U8 = isAndroid || isiOS || (isMac && isSafari);
+var supportM3U8 = isMobile || (isMac && isSafari);
 
 function isPortrait() {
-    if (isAndroid || isiOS) {
+    if (isMobile) {
         switch (window.orientation) {
             case 0:
             case 180:
@@ -76,6 +76,9 @@ var icon = {
         START_HALF: "\ue91c",
         START_OFF: "\ue91d",
 
+        HEART_ON: "\ue920",
+        HEART_OFF: "\ue921",
+
         ADD: "\ue911",
         REMOVE: "\ue914",
 
@@ -86,6 +89,8 @@ var icon = {
         CONFIRM: "\ue924",
         INFO: "\ue922",
         ERROR: "\ue900",
+        BLOCK: "\ue912",
+        OK: "\ue925",
 
         MAX: "",
         RESTORE: "",
@@ -97,7 +102,7 @@ var icon = {
         PLAY: "\ue905",
         PAUSE: "\ue904",
         STOP: "\ue90b",
-        
+
         FRONT: "\ue90a",
         PREVIOUS: "\ue902",
         NEXT: "\ue901",
@@ -106,7 +111,7 @@ var icon = {
         VOLUME_UP: "\ue90f",
         VOLUME_DOWN: "\ue90c",
         VOLUME_OFF: "\ue90e",
-        
+
         REPEAT: "\ue906",
         REPEAT_ONE: "\ue907",
 
@@ -114,6 +119,11 @@ var icon = {
         EXIT_FULLSCREEN: "\ue91f",
 
         SETTINGS: "\ue917"
+    },
+    widget: {
+        GIFT: "\ue923",
+        STORE: "\ue926",
+        MEDAL: "\ue927"
     }
 };
 
@@ -153,7 +163,7 @@ function create(tagName) {
         }
         return e;
     };
-    e.$remove = function() {
+    e.$remove = function () {
         var p = e.parentNode;
         if (isObject(p) && p) {
             p.removeChild(e);
@@ -251,7 +261,7 @@ function img(url, onload, onerror) {
     if (isFunction(onerror)) {
         e.onerror = onerror;
     }
-    if (isString(s)) {
+    if (isString(url)) {
         e.src = url;
     }
 
@@ -335,6 +345,14 @@ function button(s, onclick) {
 
 //----------------------------------------------------------------------------
 
+function tile() {
+    var e = div();
+
+    return e;
+};
+
+//----------------------------------------------------------------------------
+
 function lock(s) {
     var r = div().$style({
         position: "fixed",
@@ -347,12 +365,15 @@ function lock(s) {
 
     return r;
 };
-function unlock() {
-    //
-};
 
-function pop (s, iconText, iconColor) {
-    var mask = lock();
+function pop(s, iconText, iconColor) {
+    var mask = lock().$bind(
+        isMobile ? {
+            onclick: function () {
+                dialog.$remove();
+                mask.$remove();
+            }
+        } : null);
 
     var w = Math.floor(window.innerWidth * (isPortrait() ? 0.9 : 0.6));
     if (w % 2 === 1) {
@@ -385,7 +406,7 @@ function pop (s, iconText, iconColor) {
             marginLeft: "9px"
         })
     ).$append(
-        div().$icon(icon.win.CLOSE).$style({
+        isMobile ? null : div().$icon(icon.win.CLOSE).$style({
             color: "#aaa",
             fontSize: "20px"
         }).$bind({
@@ -404,15 +425,21 @@ function pop (s, iconText, iconColor) {
     document.body.appendChild(frag);
 };
 
-function info (s) {
-    pop(s, icon.win.INFO, "limegreen");
+function ok() {
+    pop(s, icon.win.OK, "limegreen");
 };
-function error (s) {
+function info(s) {
+    pop(s, icon.win.INFO, "deepskyblue");
+};
+function error(s) {
     pop(s, icon.win.ERROR, "red");
 };
-function confirm (s) {
-    // TODO:
-    pop(s, icon.win.CONFIRM, "orange")
+function block(s) {
+    pop(s, icon.win.BLOCK, "deeppink");
+};
+
+function confirm(s) {
+    pop(s, icon.win.CONFIRM, "orange");
 };
 
 //----------------------------------------------------------------------------
@@ -420,6 +447,7 @@ function confirm (s) {
 module.exports = {
     iOS: isiOS,
     android: isAndroid,
+    mobile: isMobile,
     chrome: chromeVersion,
     mse: supportMSE,
     m3u8: supportM3U8,
@@ -434,12 +462,16 @@ module.exports = {
     span: span,
     img: img,
 
+    tile: tile,
+
     textInput: textInput,
     passwordInput: passwordInput,
     fileInput: fileInput,
     button: button,
 
+    ok: ok,
     info: info,
+    block: block,
     error: error,
 
     confirm: confirm

@@ -14,7 +14,7 @@ function rand(max, min) {
 
 function computeFontSize(px) {
     // if (px >= 72) {
-        // return 56;
+    // return 56;
     // } else 
     if (px >= 56) {
         return 48;
@@ -58,9 +58,7 @@ function computeInputSize(n) {
     };
 };
 
-module.exports = function (container) {
-    var parent = (container ? container : document.body);
-
+module.exports = function () {
     var status = {
         correctCnt: 0,
         errorCnt: 0,
@@ -101,26 +99,38 @@ module.exports = function (container) {
     }
 
     function generate() {
+        //------------------------------------------------
         // Generate operators.
-        for (var i = 0; i < operators.length; i++) {
-            if (i < config.numberOfOperator) {
-                operators[i] = rand(config.maxOperator, 0);
-            } else {
-                operators[i] = OPERATOR_ADD;
+
+        // for (var i = 0; i < operators.length; i++) {
+        //     if (i < config.numberOfOperator) {
+        //         operators[i] = rand(config.maxOperator, 0);
+        //     } else {
+        //         operators[i] = OPERATOR_ADD;
+        //     }
+        // }
+        operators[0] = rand(config.maxOperator, 0);
+
+        //------------------------------------------------
+        // Generate operands.
+        
+        // The first operand.
+        var n = operands[0];
+        while (n === operands[0]) {
+            switch (operators[0]) {
+                case OPERATOR_SUB:
+                    n = rand(config.maxOperand, 3);
+                    break;
+
+                case OPERATOR_ADD:
+                    n = rand(config.maxOperand - 1, 1);
+                    break;
             }
         }
+        operands[0] = n;
 
-        // Generate operands.
-        switch (operators[0]) { // The first operand.
-            case OPERATOR_SUB:
-                operands[0] = rand(config.maxOperand, 3);
-                break;
-
-            case OPERATOR_ADD:
-                operands[0] = rand(config.maxOperand - 1, 1);
-                break;
-        }
-        switch (operators[0]) { // The second operand.
+        // The second operand.
+        switch (operators[0]) {
             case OPERATOR_SUB:
                 operands[1] = rand(operands[0] - 1, 1);
                 break;
@@ -129,15 +139,34 @@ module.exports = function (container) {
                 operands[1] = rand(config.maxResult < config.maxOperand + operands[0] ? config.maxResult - operands[0] : config.maxOperand, 1);
                 break;
         }
+
         if (config.numberOfOperator === 2) {
-            // TODO:
-            // The third operand.
+            var t = 0;
+
+            // The second operator and the third operand.
+            switch (operators[0]) {
+                case OPERATOR_ADD:
+                    operators[1] = OPERATOR_SUB;
+
+                    t = operands[0] + operands[1];
+                    operands[2] = rand(t, 1);
+                    break;
+
+                case OPERATOR_SUB:
+                    operators[1] = OPERATOR_ADD;
+
+                    t = operands[0] - operands[1];
+                    operands[2] = rand(config.maxResult < config.maxOperand + t ? config.maxResult - t : config.maxOperand, 1);
+                    break;
+            }
         } else {
             operators[1] = OPERATOR_ADD;
             operands[2] = 0;
         }
 
+        //------------------------------------------------
         // Compute the answer.
+        
         ans = 0;
         switch (operators[0]) {
             case OPERATOR_ADD:
@@ -377,9 +406,43 @@ module.exports = function (container) {
 
         controlPanel.$hide();
         statusPanel.$show();
-        
+
+        renderQuestion();
         renderInputs();
     };
+
+    var levels = [
+        {
+            title: "Level 1",
+            callback: function () {
+                config.maxResult = 10;
+                start();
+            }
+        },
+        {
+            title: "Level 2",
+            callback: function () {
+                config.numberOfOperator = 2;
+                config.maxResult = 10;
+                start();
+            }
+        },
+        {
+            title: "Level 3",
+            callback: function () {
+                config.maxResult = 20;
+                start();
+            }
+        },
+        {
+            title: "Level 4",
+            callback: function () {
+                config.numberOfOperator = 2;
+                config.maxResult = 20;
+                start();
+            }
+        },
+    ];
 
     function renderControls() {
         controlPanel.innerHTML = "";
@@ -387,34 +450,18 @@ module.exports = function (container) {
         var style = {
             position: "relative",
             lineHeight: "50px",
-            fontSize: "24px",
+            fontSize: "18px",
             textAlign: "center",
             border: "1px solid #ccc",
             borderRadius: "5px",
-            margin: "1px"
+            margin: "3px 50px"
         };
 
-        ui.div("Level 1").$parent(controlPanel).$style(style).$bind({
-            onclick: function () {
-                config.maxResult = 10;
-
-                start();
-            }
-        });
-        ui.div("Level 2").$parent(controlPanel).$style(style).$bind({
-            onclick: function () {
-                config.maxResult = 15;
-
-                start();
-            }
-        });
-        ui.div("Level 3").$parent(controlPanel).$style(style).$bind({
-            onclick: function () {
-                config.maxResult = 20;
-
-                start();
-            }
-        });
+        for (var i = 0; i < levels.length; i ++) {
+            ui.div(levels[i].title).$parent(controlPanel).$style(style).$bind({
+                onclick: levels[i].callback
+            });
+        }
 
         if (status.running) {
             controlPanel.$hide();
@@ -425,7 +472,8 @@ module.exports = function (container) {
 
     //----------------------------------------------------
 
-    function render() {
+    function render(container) {
+        var parent = (container ? container : document.body);
         parent.innerHTML = "";
 
         renderQuestion();

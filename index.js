@@ -12,24 +12,27 @@ var language = new Language();
 var menu = [
     {
         title: "Arithmetic",
+        icon: "/images/arith.png",
         callback: arithmetic.render
     },
     {
         title: "Chinese",
-        callback: function() {
+        icon: "/images/physics.png",
+        callback: function () {
             language.render();
             language.play("/language/resources/chinese/t3.txt", "野天鹅");
         }
-    },
-    {
-        title: "English",
-        callback: language.render
+    // },
+    // {
+    //     title: "English",
+    //     icon: "/images/english.png",
+    //     callback: language.render
     }
 ];
 
 //----------------------------------------------------------------------------
 
-function render(e) {
+function render() {
     // Clear everything.
     document.body.style.margin = "0px";
     document.body.innerHTML = "";
@@ -42,27 +45,40 @@ function render(e) {
         }
     }
 
+    var parent = ui.div().$style({
+        display: "block"
+    });
+
     // Branch 2: Render main menu.
     for (var i = 0; i < menu.length; i++) {
-        ui.div(menu[i].title).$style({
-            fontSize: "24px",
-            lineHeight: "100px",
+        ui.div().$style({
+            fontSize: "18px",
+            lineHeight: "72px",
             color: "#ccc",
-            textAlign: "center",
             border: "1px solid #eee",
             borderRadius: "9px",
             margin: "9px",
             boxShadow: "0px 0px 9px #ccc",
-            backgroundColor: ui.color.background.light[i % ui.color.background.light.length]
-        }).$bind({
+            backgroundColor: ui.color.background.light[i % ui.color.background.light.length],
+            display: "flex"
+        }).$append(
+            ui.img(menu[i].icon)
+        ).$append(
+            ui.div(menu[i].title).$style({
+                width: "100%",
+                textAlign: "center"
+            })
+        ).$bind({
             onclick: (function (state, callback) {
                 return function () {
                     history.pushState(state, "", "");
                     callback();
                 };
             })(menu[i].title, menu[i].callback)
-        }).$parent();
+        }).$parent(parent);
     }
+
+    parent.$parent();
 };
 
 //----------------------------------------------------------------------------
