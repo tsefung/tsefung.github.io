@@ -16,8 +16,9 @@ var container = ui.div().$style({
     top: "0px",
     bottom: "0px",
     display: "block",
-    backgroundImage: "url(/images/bg.png)",
-    backgroundSize: "100% 100%"
+    // backgroundImage: "url(/images/bg.png)",
+    // backgroundSize: "100% 100%"
+    background: "-webkit-gradient(linear,center top,center bottom,from(#86ABA0),to(#5CA4CE))"
 });
 
 var menu = [
@@ -80,7 +81,7 @@ function render() {
         ui.div().$style({
             fontSize: "18px",
             lineHeight: "72px",
-            color: "#ccc",
+            color: "#aaa",
             border: "1px solid #eee",
             borderRadius: "9px",
             margin: "9px",

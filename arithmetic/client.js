@@ -51,7 +51,7 @@ function computeInputSize(n) {
             textAlign: "center",
             border: "1px solid #ccc",
             borderRadius: "5px",
-            color: "#777",
+            color: "#aaa",
             backgroundColor: "rgba(255,255,255,.3)",
             margin: "1px"
         }
