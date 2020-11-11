@@ -1,5 +1,3 @@
-const ui = require("../../clients/sdk/ui");
-
 function isObject(o) {
     return (o !== null) && (typeof o === "object");
 };
@@ -271,16 +269,10 @@ function img(url, onload, onerror) {
 
 //----------------------------------------------------------------------------
 
-function input() {
-    var e = create("input");
-    e.$enable = function () {
-        e.removeAttribute("disabled");
-        return e;
-    };
-    e.$disable = function () {
-        e.setAttribute("disabled", "disabled");
-        return e;
-    };
+function attachSizeMethods(e) {
+    if (!isObject(e)) {
+        return;
+    }
 
     e.$huge = function () {
         e.style.fontSize = "36px";
@@ -298,13 +290,27 @@ function input() {
         return e;
     };
     e.$small = function () {
-        e.style.fontSize = "12px";
-        e.style.lineHeight = "12px";
+        e.style.fontSize = "14px";
+        e.style.lineHeight = "14px";
         return e;
     };
 
     e.style.color = "#555";
     e.style.padding = "5px";
+};
+
+function input() {
+    var e = create("input");
+    e.$enable = function () {
+        e.removeAttribute("disabled");
+        return e;
+    };
+    e.$disable = function () {
+        e.setAttribute("disabled", "disabled");
+        return e;
+    };
+
+    attachSizeMethods(e);
 
     return e;
 };
@@ -345,7 +351,15 @@ function button(s, onclick) {
 };
 
 function checkbox(s, value) {
-    var e = div().$bind({
+    var fe = span().$icon(icon.input.CHECKBOX_OFF).$style({
+        margin: "0px 5px"
+    });
+
+    var e = div().$append(
+        fe    
+    ).$append(
+        span(s)
+    ).$bind({
         onclick: function () {
             if (e.checked) {
                 e.$uncheck();
@@ -355,13 +369,22 @@ function checkbox(s, value) {
         }
     });
 
+    attachSizeMethods(e);
+    e.$small();
+
+    e.value = value;
+
     e.checked = false;
     e.$check = function () {
         e.checked = true;
+        fe.$icon(icon.input.CHECKBOX_ON);
     };
     e.$uncheck = function () {
         e.checked = false;
+        fe.$icon(icon.input.CHECKBOX_OFF);
     };
+
+    console.log(e);
 
     return e;
 };
@@ -379,6 +402,12 @@ function radio(s, value, groupName) {
             }
         }
     });
+
+    attachSizeMethods(e);
+    e.$small();
+
+    e.name = groupName;
+    e.value = value;
 
     e.checked = false;
     e.$check = function () {
@@ -534,19 +563,45 @@ function chooseDialog(options) {
     }
 
     var mask = lock();
-
     var dlg = dialog(options.title).$parent(mask);
 
+    var items = [];
+    function onOK() {
+        var value = null;
+        if (!!options.multiple) {
+            value = [];
+            for (var i = 0; i < items.length; i ++) {
+                if (items[i].checked) {
+                    items.push(items[i].value);
+                }
+            }
+        } else {
+            for (var i = 0; i < items.length; i ++) {
+                if (items[i].checked) {
+                    value = items[i].value;
+                    break;
+                }
+            }
+        }
+        options.callback(value);
+    };
+
     for (var i = 0; i < options.items.length; i ++) {
-        ui.div(options.items[i].title).$parent(dlg);
+        items.push(
+            !!options.multiple ?
+            checkbox(options.items[i].title, options.items[i].value).$parent(dlg) :
+            radio(options.items[i].title, options.items[i].value)
+        );
     }
 
-    ui.div().$style({
+    div().$style({
         marginTop: "15px",
         textAlign: "center"
     }).$append(
         button("OK", function() {
             mask.$remove();
+
+            onOK();
         }).$small()
     ).$parent(dlg);
 
@@ -554,7 +609,6 @@ function chooseDialog(options) {
 
     var frag = document.createDocumentFragment();
     frag.appendChild(mask);
-    // frag.appendChild(dlg);
     document.body.appendChild(frag);
 };
 
