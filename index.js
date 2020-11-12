@@ -47,19 +47,6 @@ var menu = [
 //----------------------------------------------------------------------------
 
 function render() {
-    // ui.chooseDialog({
-    //     title: "This is a test",
-    //     items: [{
-    //         title: "Item 1"
-    //     },{
-    //         title: "Item 2"
-    //     }],
-    //     callback: function () {
-    //         //
-    //     }
-    // });
-    // return;
-
     // Clear everything.
     document.body.innerHTML = "";
     document.body.style.margin = "0px";

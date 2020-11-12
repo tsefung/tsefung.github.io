@@ -1,7 +1,9 @@
 module.exports = {
-    entry: "./index.js",
+    entry: {
+        index: "./index.js"
+    },
     output: {
-        filename: "index.js"
+        filename: "[name].js"
     },
     mode: "production"
 };
