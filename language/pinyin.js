@@ -12,3 +12,29 @@ for (var k in py2c) {
 }
 
 exports.char2Pinyin = c2py;
+
+//----------------------------------------------------------------------------
+
+exports.getPinyin = function(s) {
+    var r = "";
+
+    var previousCharIsInvalid = false;
+    var first = true;
+    for (var i = 0; i < s.length; i++) {
+        var c = s.charAt(i);
+        var py = c2py[c];
+
+        if (first) {
+            first = false;
+        } else if (!py && previousCharIsInvalid) {
+            //
+        } else {
+            r += " ";
+        }
+
+        r += (py ? py : c);
+        previousCharIsInvalid = !py;
+    }
+
+    return r;
+};

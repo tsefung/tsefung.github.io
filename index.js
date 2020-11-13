@@ -1,6 +1,6 @@
 var ui = require("./ui/basic");
 var Arithmetic = require("./arithmetic/client");
-var Language = require("./language/client");
+var Language = require("./language/client2");
 
 //----------------------------------------------------------------------------
 
@@ -24,23 +24,26 @@ var container = ui.div().$style({
 var menu = [
     {
         title: "Arithmetic",
-        icon: "/images/arith.png",
+        icon: "images/arith.png",
         callback: function () {
             arithmetic.render(container);
         }
     },
     {
-        title: "Chinese",
-        icon: "/images/physics.png",
+        title: "Look, Listen, Learn",
+        icon: "images/english.png",
         callback: function () {
             language.render(container);
-            language.play("/language/resources/chinese/t3.txt", "野天鹅");
+            language.load("language/resources/english/3l-1.txt", "", false);
         }
-        // },
-        // {
-        //     title: "English",
-        //     icon: "/images/english.png",
-        //     callback: language.render
+    },
+    {
+        title: "Story",
+        icon: "images/physics.png",
+        callback: function () {
+            language.render(container);
+            language.load("language/resources/chinese/t3.txt", "野天鹅", true);
+        }
     }
 ];
 
