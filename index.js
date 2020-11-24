@@ -1,11 +1,11 @@
 var ui = require("./ui/basic");
 var Arithmetic = require("./arithmetic/client");
-var Language = require("./language/client2");
+// var Language = require("./language/client2");
 
 //----------------------------------------------------------------------------
 
 var arithmetic = new Arithmetic();
-var language = new Language();
+// var language = new Language();
 
 //----------------------------------------------------------------------------
 
@@ -28,22 +28,22 @@ var menu = [
         callback: function () {
             arithmetic.render(container);
         }
-    },
-    {
-        title: "Look, Listen, Learn",
-        icon: "images/english.png",
-        callback: function () {
-            language.render(container);
-            language.load("language/resources/english/3l-1.txt", "", false);
-        }
-    },
-    {
-        title: "Story",
-        icon: "images/physics.png",
-        callback: function () {
-            language.render(container);
-            language.load("language/resources/chinese/t3.txt", "野天鹅", true);
-        }
+    // },
+    // {
+    //     title: "Look, Listen, Learn",
+    //     icon: "images/english.png",
+    //     callback: function () {
+    //         language.render(container);
+    //         language.load("language/resources/english/3l-1.txt", "", false);
+    //     }
+    // },
+    // {
+    //     title: "Story",
+    //     icon: "images/physics.png",
+    //     callback: function () {
+    //         language.render(container);
+    //         language.load("language/resources/chinese/t3.txt", "野天鹅", true);
+    //     }
     }
 ];
 
