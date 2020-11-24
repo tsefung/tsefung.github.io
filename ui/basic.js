@@ -40,7 +40,7 @@ if (ua) {
 var ul = (navigator ? navigator.userLanguage || navigator.language : "");
 var isEnglish = (ul && (ul.indexOf("zh") >= 0) ? false : true);
 
-var supportMSE = (MediaSource && MediaSource.isTypeSupported("video/mp4; codecs=\"avc1.42E01E,mp4a.40.2\"") ? true : false);
+var supportMSE = ((typeof MediaSource === "object") && MediaSource.isTypeSupported("video/mp4; codecs=\"avc1.42E01E,mp4a.40.2\"") ? true : false);
 var supportM3U8 = isMobile || (isMac && isSafari);
 
 function isPortrait() {
