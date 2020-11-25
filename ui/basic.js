@@ -16,7 +16,7 @@ function isFunction(f) {
 
 //----------------------------------------------------------------------------
 
-var ua = navigator ? navigator.userAgent : "";
+var ua = (typeof navigator === "object" ? navigator.userAgent : "");
 
 var isAndroid = (ua && ua.match(/android/i) ? true : false);
 var isiOS = (ua && ua.match(/ipad|iphone/i) ? true : false);
@@ -37,7 +37,7 @@ if (ua) {
     }
 }
 
-var ul = (navigator ? navigator.userLanguage || navigator.language : "");
+var ul = (typeof navigator === "object" ? navigator.userLanguage || navigator.language : "");
 var isEnglish = (ul && (ul.indexOf("zh") >= 0) ? false : true);
 
 var supportMSE = ((typeof MediaSource === "object") && MediaSource.isTypeSupported("video/mp4; codecs=\"avc1.42E01E,mp4a.40.2\"") ? true : false);
