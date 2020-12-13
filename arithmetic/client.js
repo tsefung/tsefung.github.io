@@ -427,6 +427,7 @@ module.exports = function () {
         {
             title: "Level 3",
             callback: function () {
+                config.maxOperand = 20;
                 config.maxResult = 20;
                 start();
             }
@@ -435,6 +436,7 @@ module.exports = function () {
             title: "Level 4",
             callback: function () {
                 config.numberOfOperator = 2;
+                config.maxOperand = 20;
                 config.maxResult = 20;
                 start();
             }
