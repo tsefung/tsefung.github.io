@@ -440,7 +440,7 @@ module.exports = function () {
                 config.maxResult = 20;
                 start();
             }
-        },
+        }
     ];
 
     function renderControls() {
